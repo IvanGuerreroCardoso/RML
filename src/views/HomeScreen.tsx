@@ -2,8 +2,9 @@ import { View, StyleSheet, FlatList } from "react-native"
 import { Button, Text } from "@rneui/base"
 import { useNavigation } from "@react-navigation/native";
 import { getLists } from "../services/listsDbService";
-import { ListItem } from '../models/models';
-import { useState } from "react";
+import { List } from '../models/models';
+import { useEffect, useState } from "react";
+import RateableList from "../components/RateableList";
 
 
 const styles = StyleSheet.create({
@@ -16,13 +17,16 @@ const styles = StyleSheet.create({
 })
 
 export default function HomeScreen() {
-  const [lists, setLists] = useState<ListItem[]>([])
+  const [lists, setLists] = useState<List[]>([])
   const navigation = useNavigation();
-  const getText = () => lists.length === 0 ? "You don't have lists yet, lets create one." : "Your lists:"
+  const getText = () => lists.length === 0 ? "You don't have lists yet, lets create one." : "Your lists: ";
 
-  getLists().then((res)=>{
-    setLists(res);
-  })  
+  useEffect(()=>{
+    getLists().then((res)=>{
+      setLists(res);
+    });
+  }, []);
+
 
   return (
     <View style={styles.container}>
@@ -30,7 +34,7 @@ export default function HomeScreen() {
       <Button title="Add List" onPress={() => navigation.navigate("AddList")} />
       <FlatList
         data={lists}
-        renderItem={({item}) => <Text style={styles.title}>{item.name}</Text>}
+        renderItem={({item}) => <RateableList list={item} />}
       />
     </View>
   );

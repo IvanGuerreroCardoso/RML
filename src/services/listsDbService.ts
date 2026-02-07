@@ -1,4 +1,4 @@
-import {ListItem} from '../models/models';
+import { List } from '../models/models';
 import SQLite from 'react-native-sqlite-storage';
 
 const db: SQLite.SQLiteDatabase = SQLite.openDatabase(
@@ -10,7 +10,7 @@ const db: SQLite.SQLiteDatabase = SQLite.openDatabase(
 const createListTable = () => {
   return db.transaction(tx => {
     tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY NOT NULL, name TEXT);'
+      'CREATE TABLE IF NOT EXISTS Lists (listId INTEGER PRIMARY KEY NOT NULL, name TEXT, checked BOOLEAN);'
     );})
 };
 
@@ -18,7 +18,7 @@ const insertList = (name: string): Promise<number> => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
-        'INSERT INTO items (name) values (?)',
+        'INSERT INTO Lists (name, checked) values (?, false)',
         [name],
         (_, { insertId }) => resolve(insertId),
         (_, error) => reject(error)
@@ -27,14 +27,14 @@ const insertList = (name: string): Promise<number> => {
   });
 };
 
-const getLists = (): Promise<ListItem[]> => {
+const getLists = (): Promise<List[]> => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
-        'SELECT * FROM items',
+        'SELECT * FROM Lists',
         [],
         (_, res) => {
-          const items = res.rows.raw().map((item: any) => ({ id: item.id, name: item.name }));
+          const items = res.rows.raw().map((item: any) => ({ listId: item.listId, name: item.name, checked: item.checked }));
           resolve(items);
         },
         (_, error) => reject(error)
@@ -43,12 +43,12 @@ const getLists = (): Promise<ListItem[]> => {
   });
 };
 
-const updateList = (id: number, name: string): Promise<number> => {
+const updateList = (list: List): Promise<number> => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
-        'UPDATE items SET name = ? WHERE id = ?',
-        [name, id],
+        'UPDATE Lists SET name = ?, checked = ? WHERE id = ?',
+        [list.name, list.checked, list.listId],
         (_, { rowsAffected }) => resolve(rowsAffected),
         (_, error) => reject(error)
       );
@@ -60,7 +60,7 @@ const deleteList = (id: number): Promise<number> => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
-        'DELETE FROM items WHERE id = ?',
+        `DELETE FROM Lists WHERE listId = ?`,
         [id],
         (_, { rowsAffected }) => resolve(rowsAffected),
         (_, error) => reject(error)
