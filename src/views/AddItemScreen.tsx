@@ -25,6 +25,7 @@ export default function AddItemScreen({ route }: Props) {
     const [btnDisabled, setBtnDisabled] = useState<boolean>(true)
 
     let createItem = () => insertListItem({
+        itemId: 0, // ignored in insert, but added for consistency
         name: name,
         checked: false,
         author: author,
@@ -43,7 +44,7 @@ export default function AddItemScreen({ route }: Props) {
     return (
         <View style={styles.container}>
             <Input placeholder="Name" value={name} onChangeText={setName}/>
-            <Input placeholder="Author" value={name} onChangeText={authorChanged}/>
+            <Input placeholder="Author" value={author} onChangeText={authorChanged}/>
             <Input placeholder="Year" value={year} onChangeText={setYear} keyboardType="numeric"/>
             <Button title="Add" onPress={()=>createItem()} disabled={btnDisabled} />
         </View>

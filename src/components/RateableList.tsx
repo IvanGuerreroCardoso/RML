@@ -5,22 +5,19 @@ import { List } from "../models/models";
 import { updateList, deleteList } from "../services/listsDbService.ts";
 
 interface RatableListProps{
-    list: List
+    list: List,
+    updateList: () => void
 }
 
 export default function RateableList(props: RatableListProps) {
     const navigation = useNavigation();
     const { listId } = props.list;
     function markChecked(){
-        updateList({...props.list, checked: true}).then(()=>{
-            props.list.checked = true;
-        });
+        updateList({...props.list, checked: true}).then(()=>props.updateList());
     };
 
     function deleteMyList(){
-        deleteList(listId).then(()=>{
-            props.list.checked = true;
-        });
+        deleteList(listId).then(()=>props.updateList());
     };
 
     return (

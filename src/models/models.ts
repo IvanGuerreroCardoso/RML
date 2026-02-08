@@ -1,5 +1,5 @@
 interface ListItem{
-  itemId?: number,
+  itemId: number,
   listId: number,
   name: string,
   author: string,

@@ -5,21 +5,18 @@ import { ListItem as Item } from "../models/models";
 import { deleteListItem, updateListItem } from "../services/listItemsDbService.ts";
 
 interface RatableListProps{
-    item: Item
+    item: Item,
+    updateList: () => void
 }
 
 export default function RateableItem(props: RatableListProps) {
     const navigation = useNavigation();
     function markChecked(){
-        updateListItem({...props.item, checked: true}).then(()=>{
-            props.item.checked = true;
-        });
+        updateListItem({...props.item, checked: true}).then(()=>props.updateList());
     };
 
     function deleteItem(){
-        deleteListItem(props.item.itemId!).then(()=>{
-            //TODO update parent list
-        });
+        deleteListItem(props.item.itemId!).then(()=>props.updateList());
     };
 
     return (
