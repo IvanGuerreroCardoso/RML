@@ -5,6 +5,7 @@ import { FlatList , StyleSheet, View } from "react-native";
 import { Button, Text } from "@rneui/base";
 import { useNavigation, StaticScreenProps, useFocusEffect } from "@react-navigation/native";
 import RateableItem from "../components/RateableItem";
+import { t } from "i18next";
 
 const styles = StyleSheet.create({
   container: {
@@ -45,7 +46,7 @@ export default function ListScreen({ route }: Props){
     return (
         <View style={styles.container}>
           <Text>{getText()}</Text>
-          <Button title="Add Item" onPress={() => navigation.navigate("AddItem", {listId})} />
+          <Button title={t("addItem")} onPress={() => navigation.navigate("AddItem", {listId})} />
           <FlatList
             data={listItems}
             renderItem={({item}) => <RateableItem item={item} updateList={updateList}/>}

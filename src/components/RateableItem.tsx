@@ -1,55 +1,105 @@
 import { useNavigation } from "@react-navigation/native";
-import { ListItem, Button } from "@rneui/base";
+import { ListItem, Button, Rating } from "@rneui/base";
+import {  Overlay } from "@rneui/themed";
 import { Feather } from "@react-native-vector-icons/feather"
 import { ListItem as Item } from "../models/models";
 import { deleteListItem, updateListItem } from "../services/listItemsDbService.ts";
+import { useState } from "react";
+import { StyleSheet } from "react-native";
 
 interface RatableListProps{
     item: Item,
     updateList: () => void
 }
 
+const styles = StyleSheet.create({
+    overlay: {
+        backgroundColor: "#fff",
+    }
+})
+
 export default function RateableItem(props: RatableListProps) {
     const navigation = useNavigation();
+    const [rateVisible, setRateVisible] = useState(false);
+    const [rate, setRate] = useState<number | null>(null);
+
     function markChecked(){
-        updateListItem({...props.item, checked: true}).then(()=>props.updateList());
+        if(props.item.checked){
+            updateListItem({...props.item, rate: 0, checked: false}).then(()=>props.updateList());
+            return;
+        }
+
+        setRateVisible(true);
     };
+
+    function rateAndSave(){
+        updateListItem({...props.item, rate: rate, checked: true}).then(()=>props.updateList());
+    }
 
     function deleteItem(){
         deleteListItem(props.item.itemId!).then(()=>props.updateList());
     };
+    
+    const year = new Date(props.item.year).getFullYear();
+
+    const ratingCompleted = (rating: number) => {
+        setRate(rating);
+    };
 
     return (
-        <ListItem.Swipeable
-            leftContent={(reset) => (
-                <Button
-                    title="Info"
-                    onPress={() => {
-                        markChecked();
-                        reset();
-                    }}
-                    icon={<Feather name="eye" size={10} color="#000" />}
-                    buttonStyle={{ minHeight: '100%' }}
-                />
-            )}
-            rightContent={(reset) => (
-                <Button
-                    onPress={() => {
-                        deleteItem();
-                        reset();
-                    }}
-                    icon={<Feather name="eye" size={10} color="#000" />}
-                    buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
-                />
-            )}
-            /*onPress={()=>navigation.navigate("List", { listId })}
-                Todo, on press goto edit item
-            */
-            >        
-            <ListItem.Content>
-                <ListItem.Title>{props.item.name}{props.item.checked ? ' Finished' : ''}</ListItem.Title>
-            </ListItem.Content>
-            <ListItem.Chevron />
-        </ListItem.Swipeable>
+        <>
+            <ListItem.Swipeable
+                leftWidth={60}
+                leftContent={(reset) => (
+                    <Button
+                        onPress={() => {
+                            markChecked();
+                            reset();
+                        }}
+                        icon={<Feather name="eye" size={20} color="#fff" />}
+                        buttonStyle={{ minHeight: '100%' }}
+                    />
+                )}
+                rightWidth={60}
+                rightContent={(reset) => (
+                    <Button
+                        onPress={() => {
+                            deleteItem();
+                            reset();
+                        }}
+                        icon={<Feather name="trash" size={20} color="#fff" />}
+                        buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
+                    />
+                )}
+                minSlideWidth={60}
+                /*onPress={()=>navigation.navigate("List", { listId })}
+                    Todo, on press goto edit item
+                */
+                >        
+                <ListItem.Content>
+                    <ListItem.Title>{props.item.name}{props.item.checked ? ' Finished' : ''}</ListItem.Title>
+                    <ListItem.Subtitle>{props.item.author?.name} | {year}{props.item.rate ? ` | ${props.item.rate}/10` : ""}</ListItem.Subtitle>
+                </ListItem.Content>
+                <Feather name="chevron-right" size={20} color="#000" />
+            </ListItem.Swipeable>
+            <Overlay 
+                isVisible={rateVisible} 
+                onBackdropPress={()=>setRateVisible(false)}
+                style={styles.overlay}>
+                <Rating
+                    type="heart"
+                    ratingCount={10}
+                    imageSize={30}
+                    onFinishRating={ratingCompleted}
+                    showRating={rateVisible}
+                    style={{ paddingVertical: 10 }}
+                    ratingTextColor="#222"
+                    ratingColor="#FF0"
+                    ratingBackgroundColor="#FFF"
+                    />
+
+                <Button onPress={rateAndSave}>Ok</Button>
+            </Overlay>
+        </>
     );
 }

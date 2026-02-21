@@ -1,4 +1,4 @@
-import { ListItem } from '../models/models';
+import { Author, Genre, ListItem } from '../models/models';
 import { openDatabase, enablePromise, SQLiteDatabase } from 'react-native-sqlite-storage';
 
 enablePromise(true);
@@ -14,10 +14,23 @@ async function getDatabase(){
 
 const createItemsTable = async () => {
   var db = await getDatabase();
+  
+  await db.executeSql("DROP TABLE IF EXISTS Items")
+  await db.executeSql("DROP TABLE IF EXISTS Authors")
+  await db.executeSql("DROP TABLE IF EXISTS Genres")
+
+  await db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Authors USING fts4(name TEXT)")
+
+  await db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Genres USING fts4(name TEXT)")
+    
   return await db.executeSql(
-    `CREATE TABLE IF NOT EXISTS Items 
-    (itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year DATE, checked BOOLEAN, author TEXT, 
-    FOREIGN KEY (listId) REFERENCES Lists(listId) ON DELETE CASCADE);`
+    `PRAGMA foreign_keys = ON;
+    CREATE TABLE IF NOT EXISTS Items 
+    (itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year DATE, checked BOOLEAN, rate FLOAT,
+    authorId INT, genreId INT,
+    FOREIGN KEY (listId) REFERENCES Lists(listId) ON DELETE CASCADE, 
+    FOREIGN KEY (authorId) REFERENCES Authors(rowid) ON DELETE SET DEFAULT,
+    FOREIGN KEY (genreId) REFERENCES Genres(rowid) ON DELETE SET DEFAULT);`
   )
 };
 
@@ -25,10 +38,40 @@ const insertListItem = async (item: ListItem): Promise<number> => {
   var db = await getDatabase();
 
   return (await db.executeSql(
-    'INSERT INTO Items (name, listId, year, checked, author) values (?,?,?,?,?)',
-    [item.name, item.listId, item.year, item.checked, item.author]
+    'INSERT INTO Items (name, listId, year, checked, rate, authorId, genreId) values (?,?,?,?,0,?,?)',
+    [item.name, item.listId, item.year, item.checked, item.rate, item.author?.id ?? null, item.genre?.id ?? null]
   ))[0].insertId;
 };
+
+const insertAuthor = async (name: string): Promise<number>=>{
+  var db = await getDatabase();
+  return (await db.executeSql("INSERT INTO Authors (name) VALUES (?)", [name]))[0].insertId;
+}
+
+const insertGenre = async (name: string): Promise<number>=>{
+  var db = await getDatabase();
+  return (await db.executeSql("INSERT INTO Genres (name) VALUES (?)", [name]))[0].insertId;
+}
+
+const matchAuthor = async (text: string): Promise<Author[]> => {
+  var db = await getDatabase();
+  var res = await db.executeSql("SELECT * FROM Authors WHERE name MATCH (?)", [text]);
+
+  return res[0].rows.raw().map((a: any) => ({
+    name: a.name,
+    id: a.authorId
+  }))
+}
+
+const matchGenre = async (text: string): Promise<Genre[]> => {
+  var db = await getDatabase();
+  var res = await db.executeSql("SELECT * FROM Genres WHERE name MATCH (?)", [text]);
+
+  return res[0].rows.raw().map((a: any) => ({
+    name: a.name,
+    id: a.authorId
+  }))
+}
 
 const getAllItemsCount = async (): Promise<number> =>{
   var db = await getDatabase();
@@ -46,23 +89,30 @@ const getListItems = async (listId: number): Promise<ListItem[]> => {
   var db = await getDatabase();
 
   var res = await db.executeSql(
-    `SELECT *
-    FROM Items WHERE listId = ?`,
+    `SELECT i.itemId, i.listId, i.name, i.checked, i.year, i.rate
+      a.authorId, a.name as authorName, g.genreId, g.name as genreName
+    FROM Items i
+    LEFT JOIN Authors a on a.rowid = i.authorId
+    LEFT JOIN Genres g on g.rowid = i.genreId
+    WHERE listId = ?`,
     [listId]
   );
   
   return res[0].rows.raw().map((item: any) => ({ 
-    itemId: item.listId, listId: item.listId,
+    itemId: item.itemId, listId: item.listId,
     name: item.name, checked: item.checked,
-    author: item.author, year: item.year}));
+    year: item.year, rate: item.rate, 
+    author: {id: item.authorId, name: item.authorName},
+    genre: {id: item.genreId, name: item.genreName}
+  }));
 };
 
 const updateListItem = async (item: ListItem): Promise<number> => {
   var db = await getDatabase();
 
   return (await db.executeSql(
-    'UPDATE Items SET name = ?, checked = ?, year = ?, author = ? WHERE itemId = ?',
-    [item.name, item.checked, item.year, item.author, item.itemId]
+    'UPDATE Items SET name = ?, checked = ?, year = ?, rate = ?, authorId = ?, genreId = ? WHERE itemId = ?',
+    [item.name, item.checked, item.year, item.rate, item.itemId, item.author?.id ?? null, item.author?.id ?? null]
   ))[0].rowsAffected;
 };
 
@@ -75,4 +125,7 @@ const deleteListItem = async (id: number): Promise<number> => {
   ))[0].rowsAffected;
 };
 
-export { insertListItem, getListItems, updateListItem, deleteListItem, createItemsTable, getAllItemsCount };
+export { 
+  insertListItem, getListItems, updateListItem, deleteListItem, 
+  createItemsTable, insertAuthor, insertGenre, matchAuthor, matchGenre
+ };

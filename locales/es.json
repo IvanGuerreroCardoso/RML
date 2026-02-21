@@ -1,0 +1,12 @@
+{
+    "addList": "Añadir lista",
+    "addItem": "Añadir elemento de lista",
+    "yourLists": "Tus listas",
+    "listName": "Nombre de la lista",
+    "name": "Nombre",
+    "author": "Autor",
+    "genre": "Género",
+    "year": "Año",
+    "add": "Añadir",
+    "noListsMsg": "Aún no tienes listas, creemos una."
+}

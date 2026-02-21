@@ -13,18 +13,20 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createListTable } from './src/services/listsDbService';
 import AddItemScreen from './src/views/AddItemScreen';
 import { createItemsTable } from './src/services/listItemsDbService';
-import SQLite from 'react-native-sqlite-storage';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';
+import { t } from 'i18next';
 
 
 const RootStack = createNativeStackNavigator({
   screens: {
     Home: {
       screen: HomeScreen,
-      options: {title: "Home"}
+      options: {title: t("yourLists")}
     },
     AddList: {
       screen: AddListScreen,
-      options: {title: "Add List"}
+      options: {title: t("addList")}
     },
     List: {
       screen: ListScreen,
@@ -32,7 +34,7 @@ const RootStack = createNativeStackNavigator({
     },
     AddItem: {
       screen: AddItemScreen,
-      options: {title: "Add List Item"}
+      options: {title: t("addItem")}
     }
   },
 });
@@ -43,7 +45,10 @@ createItemsTable();
 const Navigation = createStaticNavigation(RootStack);
 
 export default function App() {
-  return <Navigation />;
+  return (
+  <I18nextProvider i18n={i18n}>
+    <Navigation />
+  </I18nextProvider>);
 }
 
 type RootStackParamList = StaticParamList<typeof RootStack>;

@@ -24,7 +24,6 @@ export default function RateableList(props: RatableListProps) {
         <ListItem.Swipeable
             leftContent={(reset) => (
                 <Button
-                    title="Mark Seen"
                     onPress={() => {
                         markChecked();
                         reset();

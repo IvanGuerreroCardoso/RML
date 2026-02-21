@@ -3,6 +3,7 @@ import {Button, Input} from "@rneui/base"
 import { useState } from "react";
 import { insertList } from "../services/listsDbService";
 import { useNavigation } from "@react-navigation/native";
+import { t } from "i18next";
 
 
 const styles = StyleSheet.create({
@@ -25,8 +26,8 @@ export default function AddListScreen() {
 
     return (
         <View style={styles.container}>
-            <Input placeholder="List name" value={name} onChangeText={listNameChanged}/>
-            <Button title="Add" onPress={()=>createList()} disabled={btnDisabled} />
+            <Input placeholder={t("listName")} value={name} onChangeText={listNameChanged}/>
+            <Button title={t("add")} onPress={()=>createList()} disabled={btnDisabled} />
         </View>
     );
 }
