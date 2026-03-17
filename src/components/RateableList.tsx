@@ -20,6 +20,11 @@ export default function RateableList(props: RatableListProps) {
         deleteList(listId).then(()=>props.updateList());
     };
 
+    function openList(){
+        navigation.navigate("List", { listId })
+        navigation.setOptions({title: props.list.name})// TODO check if need to move into the list view to change after navigation
+    }
+
     return (
         <ListItem.Swipeable
             leftContent={(reset) => (
@@ -42,7 +47,7 @@ export default function RateableList(props: RatableListProps) {
                     buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
                 />
             )}
-            onPress={()=>navigation.navigate("List", { listId })}>        
+            onPress={()=>openList()}>        
             <ListItem.Content>
                 <ListItem.Title>{props.list.name}{props.list.checked ? ' Complete!' : ''}</ListItem.Title>
             </ListItem.Content>

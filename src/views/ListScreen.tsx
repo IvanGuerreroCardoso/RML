@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
 
 type Props = StaticScreenProps<{
     listId: number;
+   // name: string;
 }>
 
 export default function ListScreen({ route }: Props){

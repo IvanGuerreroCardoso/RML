@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
-import { ListItem, Button, Rating } from "@rneui/base";
-import {  Overlay } from "@rneui/themed";
+import { ListItem, Button, Slider } from "@rneui/base";
+import { Overlay } from "@rneui/themed";
 import { Feather } from "@react-native-vector-icons/feather"
 import { ListItem as Item } from "../models/models";
 import { deleteListItem, updateListItem } from "../services/listItemsDbService.ts";
@@ -21,7 +21,8 @@ const styles = StyleSheet.create({
 export default function RateableItem(props: RatableListProps) {
     const navigation = useNavigation();
     const [rateVisible, setRateVisible] = useState(false);
-    const [rate, setRate] = useState<number | null>(null);
+    const [rateChanged, setRateChanged] = useState(false);
+    const [rate, setRate] = useState<number>(0);
 
     function markChecked(){
         if(props.item.checked){
@@ -44,6 +45,7 @@ export default function RateableItem(props: RatableListProps) {
 
     const ratingCompleted = (rating: number) => {
         setRate(rating);
+        setRateChanged(true);
     };
 
     return (
@@ -86,19 +88,27 @@ export default function RateableItem(props: RatableListProps) {
                 isVisible={rateVisible} 
                 onBackdropPress={()=>setRateVisible(false)}
                 style={styles.overlay}>
-                <Rating
-                    type="heart"
-                    ratingCount={10}
-                    imageSize={30}
-                    onFinishRating={ratingCompleted}
-                    showRating={rateVisible}
-                    style={{ paddingVertical: 10 }}
-                    ratingTextColor="#222"
-                    ratingColor="#FF0"
-                    ratingBackgroundColor="#FFF"
-                    />
+                <Slider
+                    value={rate}
+                    onValueChange={ratingCompleted}
+                    maximumValue={10}
+                    minimumValue={0}
+                    step={1}
+                    allowTouchTrack
+                    trackStyle={{ height: 5, backgroundColor: 'transparent' }}
+                    thumbStyle={{ height: 20, width: 20, backgroundColor: 'transparent' }}
+                    thumbProps={{
+                    children: (
+                        <Feather
+                        name="heart"
+                        size={20}
+                        color="#ee5997"
+                        />
+                    ),
+                    }}
+                />
 
-                <Button onPress={rateAndSave}>Ok</Button>
+                <Button onPress={rateAndSave} disabled={rateChanged} >Ok</Button>
             </Overlay>
         </>
     );
