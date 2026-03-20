@@ -13,7 +13,9 @@ const styles = StyleSheet.create({
     },
     flatList: {
         backgroundColor: 'red',
-        flexGrow: 0
+        maxHeight: 130,
+        flexGrow: 0,
+        overflow: 'scroll'
     }
 })
 
@@ -38,10 +40,10 @@ export default function AddItemScreen({ route }: Props) {
         var authorIdTask = null;
         var genreIdTask = null;
 
-        if(author && authorId !== 0){
+        if(author && authorId === 0){
             authorIdTask = insertAuthor(author);
         }
-        if(genre && genreId !== 0){
+        if(genre && genreId === 0){
             genreIdTask = insertGenre(genre);
         }
 
@@ -62,10 +64,12 @@ export default function AddItemScreen({ route }: Props) {
 
     useEffect(()=>{
         setBtnDisabled(name === "" || author === "");
-    }, [name, author])
+    }, [name, author, authorsMatch, genreMatch])
 
     function authorChanged(txt: string){
         setAuthor(txt);
+        setAuthorId(0);
+
         if(txt.length>2){
             matchAuthor(txt).then(res=>setAuthorsMatch(res));
         }
@@ -73,6 +77,8 @@ export default function AddItemScreen({ route }: Props) {
 
     function genreChanged(txt: string){
         setGenre(txt);
+        setGenreId(0);
+
         if(txt.length>2){
             matchGenre(txt).then(res=>setGenreMatch(res));
         }
@@ -87,6 +93,7 @@ export default function AddItemScreen({ route }: Props) {
     function genreSelected(author: Author){
         setGenre(author.name);
         setGenreId(author.id);
+        setGenreMatch([]);
     }
 
     function getMatchesFlatList(list: Author[] | Genre[], itemSelected: (item: Author | Genre) => void){
@@ -95,7 +102,11 @@ export default function AddItemScreen({ route }: Props) {
                 data={list} 
                 style={styles.flatList}
                 keyExtractor={item => item.id + item.name}
-                renderItem={({item}) =><ListItem onPress={()=>itemSelected(item)}>{item.name}</ListItem>} />
+                renderItem={({item}) =><ListItem onPress={()=>itemSelected(item)}><ListItem.Title>{item.name}</ListItem.Title></ListItem>}
+                persistentScrollbar={list.length > 2}
+                showsVerticalScrollIndicator={true}
+                scrollEnabled={true}
+                indicatorStyle="black"/>
         )
     }
 
