@@ -15,61 +15,62 @@ async function getDatabase(){
 const createItemsTable = async () => {
   var db = await getDatabase();
   
-  await db.executeSql("DROP TABLE IF EXISTS Items")
-  await db.executeSql("DROP TABLE IF EXISTS Authors")
-  await db.executeSql("DROP TABLE IF EXISTS Genres")
+  //await db.executeSql("DROP TABLE IF EXISTS Items")
+  //await db.executeSql("DROP TABLE IF EXISTS Authors")
+  //await db.executeSql("DROP TABLE IF EXISTS Genres")
 
   await db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Authors USING fts4(name TEXT)")
 
   await db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Genres USING fts4(name TEXT)")
-    
-  return await db.executeSql(
-    `PRAGMA foreign_keys = ON;
+
+  await db.executeSql("PRAGMA foreign_keys = ON;");
+
+  return await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Items 
     (itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year DATE, checked BOOLEAN, rate FLOAT,
     authorId INT, genreId INT,
-    FOREIGN KEY (listId) REFERENCES Lists(listId) ON DELETE CASCADE, 
-    FOREIGN KEY (authorId) REFERENCES Authors(rowid) ON DELETE SET DEFAULT,
-    FOREIGN KEY (genreId) REFERENCES Genres(rowid) ON DELETE SET DEFAULT);`
+    FOREIGN KEY (listId) REFERENCES Lists(listId) ON DELETE CASCADE)`
   )
-};
+};    
 
 const insertListItem = async (item: ListItem): Promise<number> => {
   var db = await getDatabase();
-
+  
   return (await db.executeSql(
     'INSERT INTO Items (name, listId, year, checked, rate, authorId, genreId) values (?,?,?,?,0,?,?)',
-    [item.name, item.listId, item.year, item.checked, item.rate, item.author?.id ?? null, item.genre?.id ?? null]
+    [item.name, item.listId, item.year, item.checked, item.author?.id ?? null, item.genre?.id ?? null]
   ))[0].insertId;
 };
 
 const insertAuthor = async (name: string): Promise<number>=>{
   var db = await getDatabase();
+  
   return (await db.executeSql("INSERT INTO Authors (name) VALUES (?)", [name]))[0].insertId;
 }
 
 const insertGenre = async (name: string): Promise<number>=>{
   var db = await getDatabase();
+
   return (await db.executeSql("INSERT INTO Genres (name) VALUES (?)", [name]))[0].insertId;
 }
 
 const matchAuthor = async (text: string): Promise<Author[]> => {
   var db = await getDatabase();
-  var res = await db.executeSql("SELECT * FROM Authors WHERE name MATCH (?)", [text]);
+  var res = await db.executeSql(`SELECT rowid, name FROM Authors WHERE name MATCH '${text}*' LIMIT 5`);
 
   return res[0].rows.raw().map((a: any) => ({
     name: a.name,
-    id: a.authorId
+    id: a.rowid
   }))
 }
 
 const matchGenre = async (text: string): Promise<Genre[]> => {
   var db = await getDatabase();
-  var res = await db.executeSql("SELECT * FROM Genres WHERE name MATCH (?)", [text]);
+  var res = await db.executeSql(`SELECT rowid, name FROM Genres WHERE name MATCH '${text}*' LIMIT 5`);
 
-  return res[0].rows.raw().map((a: any) => ({
-    name: a.name,
-    id: a.authorId
+  return res[0].rows.raw().map((g: any) => ({
+    name: g.name,
+    id: g.rowid
   }))
 }
 
@@ -89,18 +90,18 @@ const getListItems = async (listId: number): Promise<ListItem[]> => {
   var db = await getDatabase();
 
   var res = await db.executeSql(
-    `SELECT i.itemId, i.listId, i.name, i.checked, i.year, i.rate
-      a.authorId, a.name as authorName, g.genreId, g.name as genreName
+    `SELECT i.itemId, i.listId, i.name, i.checked, i.year, i.rate,
+      i.authorId, a.name as authorName, i.genreId, g.name as genreName
     FROM Items i
     LEFT JOIN Authors a on a.rowid = i.authorId
     LEFT JOIN Genres g on g.rowid = i.genreId
-    WHERE listId = ?`,
+    WHERE i.listId = ?`,
     [listId]
   );
   
   return res[0].rows.raw().map((item: any) => ({ 
     itemId: item.itemId, listId: item.listId,
-    name: item.name, checked: item.checked,
+    name: item.name, checked: !!item.checked,
     year: item.year, rate: item.rate, 
     author: {id: item.authorId, name: item.authorName},
     genre: {id: item.genreId, name: item.genreName}

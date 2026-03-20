@@ -36,7 +36,7 @@ const getLists = async (): Promise<List[]> => {
     'SELECT * FROM Lists'
   );
 
-  return res[0].rows.raw().map((item: any) => ({ listId: item.listId, name: item.name, checked: item.checked }));
+  return res[0].rows.raw().map((item: any) => ({ listId: item.listId, name: item.name, checked: !!item.checked }));
 };
 
 const updateList = async (list: List): Promise<number> => {
