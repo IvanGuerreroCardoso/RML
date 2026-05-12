@@ -1,12 +1,13 @@
 {
-    "addList": "Add a list",
-    "addItem": "Add a list item",
-    "yourLists": "Your lists",
-    "listName": "List name",
-    "name": "Name",
-    "author": "Author",
-    "genre": "Genre",
-    "year": "Year",
-    "add": "Add",
-    "noListsMsg": "You don't have lists yet, lets create one."
+  "addList": "Add a list",
+  "addItem": "Add a list item",
+  "yourLists": "Your lists",
+  "listName": "List name",
+  "name": "Name",
+  "author": "Author",
+  "genre": "Genre",
+  "year": "Year",
+  "add": "Add",
+  "noListsMsg": "You don't have lists yet, lets create one.",
+  "enableDarkMode": "Enable dark mode"
 }
