@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react"
-import { ListItem as Item } from "../models/models"
+import { ListItem as Item, RootStackParamList } from "../models/models"
 import { getListItems } from "../services/listItemsDbService";
 import { FlatList, StyleSheet, View } from "react-native";
 import { Button, Text } from "@rneui/base";
 import { useNavigation, StaticScreenProps, useFocusEffect } from "@react-navigation/native";
 import RateableItem from "../components/RateableItem";
 import { t } from "i18next";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 const styles = StyleSheet.create({
   container: {
@@ -16,10 +17,7 @@ const styles = StyleSheet.create({
   }
 })
 
-type Props = StaticScreenProps<{
-  listId: number;
-  name: string;
-}>
+type Props = NativeStackScreenProps<RootStackParamList, "List">;
 
 export default function ListScreen({ route }: Props) {
   const navigation = useNavigation();
@@ -28,7 +26,6 @@ export default function ListScreen({ route }: Props) {
 
   useFocusEffect(
     useCallback(() => {
-      navigation.setOptions({ title: name });
       updateList();
     }, [])
   );

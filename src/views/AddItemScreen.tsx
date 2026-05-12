@@ -3,9 +3,9 @@ import { Button, Input, ListItem } from "@rneui/base"
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { insertAuthor, insertGenre, insertListItem, matchAuthor, matchGenre } from "../services/listItemsDbService";
-import { StaticScreenProps } from "@react-navigation/native";
-import { Author, Genre } from "../models/models"
+import { Author, Genre, RootStackParamList } from "../models/models"
 import { t } from "i18next";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 const styles = StyleSheet.create({
   container: {
@@ -19,9 +19,7 @@ const styles = StyleSheet.create({
   }
 })
 
-type Props = StaticScreenProps<{
-  listId: number;
-}>
+type Props = NativeStackScreenProps<RootStackParamList, "AddItem">;
 
 export default function AddItemScreen({ route }: Props) {
   const navigation = useNavigation();

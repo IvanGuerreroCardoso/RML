@@ -32,6 +32,7 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       updateList();
+      navigation.setOptions({title: t("yourLists")});
       //getAllItemsCount().then((res)=> setCount(res));
     }, [])
   );

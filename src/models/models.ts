@@ -1,4 +1,4 @@
-interface ListItem{
+interface ListItem {
   itemId: number,
   listId: number,
   name: string,
@@ -9,20 +9,28 @@ interface ListItem{
   rate: number | null
 }
 
-interface Author{
+interface Author {
   id: number,
   name: string
 }
 
-interface Genre{
+interface Genre {
   id: number,
   name: string
 }
 
-interface List{
+interface List {
   listId: number,
   name: string,
   checked: boolean
 }
 
-export type { ListItem, List, Author, Genre }
+type RootStackParamList = {
+  Home: undefined;
+  AddList: undefined;
+  AddItem: { listId: number };
+  List: { listId: number; name: string };
+  Settings: undefined;
+}
+
+export type { ListItem, List, Author, Genre, RootStackParamList }

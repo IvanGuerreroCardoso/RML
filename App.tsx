@@ -9,19 +9,21 @@ import AddListScreen from './src/views/AddListScreen';
 import HomeScreen from './src/views/HomeScreen';
 import ListScreen from './src/views/ListScreen';
 import SettingsScreen from "./src/views/SettingsScreen"
-import { createStaticNavigation, DarkTheme, DefaultTheme, StaticParamList, useNavigation, useTheme } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createListTable } from './src/services/listsDbService';
 import AddItemScreen from './src/views/AddItemScreen';
 import { createItemsTable } from './src/services/listItemsDbService';
-import { I18nextProvider } from 'react-i18next';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from './i18n';
-import { t } from 'i18next';
 import { Feather } from "@react-native-vector-icons/feather";
-import { useColorScheme } from 'react-native';
-import { ThemeProvider } from '@rneui/themed';
+import { useLayoutEffect } from 'react';
+import { ThemeProvider as RNEThemeProvider, useTheme } from '@rneui/themed';
+import { RootStackParamList } from './src/models/models';
+import { Appearance } from 'react-native';
+import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 
-const RootStack = createNativeStackNavigator({
+/*const RootStack = createNativeStackNavigator({
   screens: {
     Home: {
       screen: HomeScreen,
@@ -52,25 +54,90 @@ const RootStack = createNativeStackNavigator({
     }
   },
 });
+*/
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function RootStack() {
+  const { t } = useTranslation();
+  /* const homeTitle = useMemo(() => t("yourLists"), [t]);
+   const addListTitle = useMemo(() => t("addLists"), [t]);
+   const addItemTitle = useMemo(() => t("addItem"), [t]);
+   const settingsTitle = useMemo(() => t("settings"), [t]);
+ */
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          title: t("yourLists"),
+          headerRight: () => {
+            const nav = useNavigation();
+            const { theme } = useTheme();
+            return <Feather onPress={() => nav.navigate("Settings")} name="settings" size={20} color={theme.colors.primary} />
+          }
+        }}
+      />
+      <Stack.Screen
+        name="AddList"
+        component={AddListScreen}
+        options={{
+          title: t("addLists")
+        }}
+      />
+      <Stack.Screen
+        name="AddItem"
+        component={AddItemScreen}
+        options={{
+          title: t("addItem")
+        }}
+      />
+      <Stack.Screen
+        name="List"
+        component={ListScreen}
+        options={({ route }) => ({
+          title: route.params.name
+        })}
+      />
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          title: t("settings")
+        }}
+      />
+    </Stack.Navigator>
+  )
+}
 
 createListTable();
 createItemsTable();
 
-const Navigation = createStaticNavigation(RootStack);
-
-export default function App() {
-  const scheme = useColorScheme()
+const Navigation = () => {
+  const { theme } = useAppTheme();
 
   return (
-    <I18nextProvider i18n={i18n}>
-      <ThemeProvider>
-        <Navigation theme={scheme === 'dark' ? DarkTheme : DefaultTheme} />
-      </ThemeProvider>
-    </I18nextProvider>);
+    <NavigationContainer theme={theme as any}>
+      <RNEThemeProvider theme={theme}>
+        <RootStack />
+      </RNEThemeProvider>
+    </NavigationContainer>
+  );
+};
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <I18nextProvider i18n={i18n}>
+        <Navigation />
+      </I18nextProvider>
+    </ThemeProvider>
+  );
 }
 
-type RootStackParamList = StaticParamList<typeof RootStack>;
 
+/*type RootStackParamList = StaticParamList<typeof RootStack>;
+*/
 declare global {
   namespace ReactNavigation {
     interface RootParamList extends RootStackParamList { }

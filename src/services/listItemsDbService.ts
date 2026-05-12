@@ -15,7 +15,7 @@ async function getDatabase(){
 const createItemsTable = async () => {
   var db = await getDatabase();
   
-  //await db.executeSql("DROP TABLE IF EXISTS Items")
+  await db.executeSql("DROP TABLE IF EXISTS Items")
   //await db.executeSql("DROP TABLE IF EXISTS Authors")
   //await db.executeSql("DROP TABLE IF EXISTS Genres")
 
@@ -27,7 +27,7 @@ const createItemsTable = async () => {
 
   return await db.executeSql(`
     CREATE TABLE IF NOT EXISTS Items 
-    (itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year DATE, checked BOOLEAN, rate FLOAT,
+    (itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year DATE, checked BOOLEAN, rate INTEGER,
     authorId INT, genreId INT,
     FOREIGN KEY (listId) REFERENCES Lists(listId) ON DELETE CASCADE)`
   )
