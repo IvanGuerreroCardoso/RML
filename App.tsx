@@ -13,6 +13,7 @@ import { Feather } from "@react-native-vector-icons/feather";
 import { ThemeProvider as RNEThemeProvider, useTheme } from '@rneui/themed';
 import { RootStackParamList } from './src/models/models';
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
+import { createSettingsTable } from './src/services/settingsDbService';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -65,6 +66,7 @@ function RootStack() {
   )
 }
 
+createSettingsTable();
 createListTable();
 createItemsTable();
 

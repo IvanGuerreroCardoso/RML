@@ -5,6 +5,7 @@ import { ListItem as Item } from "../models/models";
 import { deleteListItem, updateListItem } from "../services/listItemsDbService.ts";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { useAppTheme } from "../context/ThemeContext.tsx";
 
 interface RatableListProps {
   item: Item,
@@ -25,7 +26,7 @@ const styles = StyleSheet.create({
 })
 
 export default function RateableItem(props: RatableListProps) {
-  console.log("props", props)
+  const { theme } = useAppTheme();
   const navigation = useNavigation();
   const [rateVisible, setRateVisible] = useState(false);
   const [rateChanged, setRateChanged] = useState(false);
@@ -68,7 +69,7 @@ export default function RateableItem(props: RatableListProps) {
               markChecked();
               reset();
             }}
-            icon={<Feather name="eye" size={20} color="#fff" />}
+            icon={<Feather name="eye" size={20} color="#222" />}
             buttonStyle={{ minHeight: '100%' }}
           />
         )}
@@ -79,7 +80,7 @@ export default function RateableItem(props: RatableListProps) {
               deleteItem();
               reset();
             }}
-            icon={<Feather name="trash" size={20} color="#fff" />}
+            icon={<Feather name="trash" size={20} color="#222" />}
             buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
           />
         )}
@@ -90,15 +91,15 @@ export default function RateableItem(props: RatableListProps) {
       >
         <ListItem.Content>
 
-          <ListItem.Title>{props.item.checked === true &&
+          <ListItem.Title style={{ color: theme.colors?.text }}>{props.item.checked === true &&
             <Feather
               name="check-square"
               size={20}
               color="#26a50d"
             />}{props.item.name}</ListItem.Title>
-          <ListItem.Subtitle>{props.item.author?.name} | {year}{props.item.rate ? ` | ${props.item.rate}/10` : ""}</ListItem.Subtitle>
+          <ListItem.Subtitle style={{ color: theme.colors?.text }}>{props.item.author?.name} | {year}{props.item.rate ? ` | ${props.item.rate}/10` : ""}</ListItem.Subtitle>
         </ListItem.Content>
-        <Feather name="chevron-right" size={20} color="#000" />
+        <Feather name="chevron-right" size={20} color={theme.colors?.text} />
       </ListItem.Swipeable>
       <Overlay
         isVisible={rateVisible}

@@ -41,11 +41,11 @@ export default function ListScreen({ route }: Props) {
     });
   }
 
-  const getText = () => listItems.length === 0 ? "This list doesn't have items yet, lets create one." : "Items:";
-
   return (
     <View style={styles.container}>
-      <Text>{getText()}</Text>
+      {listItems.length === 0 &&
+        <Text>{t("noItemsInList")}</Text>
+      }
       <Button title={t("addItem")} onPress={() => navigation.navigate("AddItem", { listId })} />
       <FlatList
         data={listItems}

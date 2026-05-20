@@ -25,6 +25,12 @@ interface List {
   checked: boolean
 }
 
+interface AppSettings {
+  id: number,
+  theme: "light" | "dark" | null,
+  language: string | null
+}
+
 type RootStackParamList = {
   Home: undefined;
   AddList: undefined;
@@ -33,4 +39,4 @@ type RootStackParamList = {
   Settings: undefined;
 }
 
-export type { ListItem, List, Author, Genre, RootStackParamList }
+export type { ListItem, List, Author, Genre, RootStackParamList, AppSettings }

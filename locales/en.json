@@ -1,6 +1,6 @@
 {
   "addList": "Add a list",
-  "addItem": "Add a list item",
+  "addItem": "Add element",
   "yourLists": "Your lists",
   "settings": "Settings",
   "listName": "List name",
@@ -12,4 +12,5 @@
   "noListsMsg": "You don't have lists yet, lets create one.",
   "enableDarkMode": "Enable dark mode",
   "selectLang": "Select language",
+  "noItemsInList": "This list doesn't have items yet, lets create one."
 }

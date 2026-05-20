@@ -3,6 +3,7 @@ import { ListItem, Button } from "@rneui/themed";
 import { Feather } from "@react-native-vector-icons/feather"
 import { List } from "../models/models";
 import { updateList, deleteList } from "../services/listsDbService.ts";
+import { useAppTheme } from "../context/ThemeContext.tsx";
 
 interface RatableListProps {
   list: List,
@@ -10,6 +11,7 @@ interface RatableListProps {
 }
 
 export default function RateableList(props: RatableListProps) {
+  const { theme } = useAppTheme();
   const navigation = useNavigation();
   const { listId } = props.list;
   function markChecked() {
@@ -27,13 +29,16 @@ export default function RateableList(props: RatableListProps) {
 
   return (
     <ListItem.Swipeable
+      leftWidth={60}
+      rightWidth={60}
+      minSlideWidth={60}
       leftContent={(reset) => (
         <Button
           onPress={() => {
             markChecked();
             reset();
           }}
-          icon={<Feather name="eye" size={20} color="#000" />}
+          icon={<Feather name="eye" size={20} color="#222" />}
           buttonStyle={{ minHeight: '100%' }}
         />
       )}
@@ -43,15 +48,15 @@ export default function RateableList(props: RatableListProps) {
             deleteMyList();
             reset();
           }}
-          icon={<Feather name="trash" size={20} color="#000" />}
+          icon={<Feather name="trash" size={20} color="#222" />}
           buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
         />
       )}
       onPress={() => openList()}>
       <ListItem.Content>
-        <ListItem.Title>{props.list.name}{props.list.checked ? ' Complete!' : ''}</ListItem.Title>
+        <ListItem.Title style={{ color: theme.colors?.text }}>{props.list.name}{props.list.checked ? ' Complete!' : ''}</ListItem.Title>
       </ListItem.Content>
-      <Feather name="chevron-right" size={20} color="#000" />
+      <Feather name="chevron-right" size={20} color={theme.colors?.text} />
     </ListItem.Swipeable>
   );
 }

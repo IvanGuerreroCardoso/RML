@@ -1,13 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useMemo, useEffect } from 'react';
 import { Theme as NavTheme } from '@react-navigation/native';
-import { Theme as ElementsTheme } from '@rneui/themed';
+import { Colors, FullTheme as ElementsTheme } from '@rneui/themed';
+import { getSettings, updateTheme } from '../services/settingsDbService';
 
 type Mode = 'light' | 'dark';
 
 interface ThemeContextProps {
   mode: Mode;
   toggleMode: () => void;
-  theme: ElementsTheme;
+  theme: Partial<ElementsTheme>;
 }
 
 const LightPalette = {
@@ -15,6 +16,7 @@ const LightPalette = {
   background: '#ffffff',
   card: '#f8f9fa',
   text: '#000000',
+  mutedText: "#777",
   border: '#c7c7c7',
   notification: '#ff80ab',
 } as const;
@@ -24,6 +26,7 @@ const DarkPalette = {
   background: '#121212',
   card: '#1f1f1f',
   text: '#ffffff',
+  mutedText: "#555",
   border: '#272727',
   notification: '#ff80ab',
 } as const;
@@ -42,7 +45,21 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleMode = () => setMode(prev => (prev === 'light' ? 'dark' : 'light'));
 
-  const theme: ElementsTheme = useMemo(() => {
+  useEffect(() => {
+    const loadTheme = async () => {
+      const settings = await getSettings();
+
+      if (settings?.theme) {
+        setMode(settings.theme);
+        return;
+      }
+      updateTheme("light");
+    }
+
+    loadTheme();
+  }, [])
+
+  const theme: Partial<ElementsTheme> = useMemo(() => {
     const palette = mode === 'light' ? LightPalette : DarkPalette;
 
     const navigationTheme: NavTheme = {
@@ -53,7 +70,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         card: palette.card,
         text: palette.text,
         border: palette.border,
-        notification: palette.notification,
+        notification: palette.notification
       },
       fonts: {
         regular: { fontFamily: "", fontWeight: 'normal' },
@@ -65,7 +82,26 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
     return {
       ...navigationTheme,
+      colors: navigationTheme.colors as Colors,
       fonts: DefaultFonts,
+      components: {
+        Text: {
+          style: {
+            color: palette.text
+          }
+        },
+        Button: {
+          disabledStyle: {
+            backgroundColor: palette.border,
+            color: palette.mutedText
+          }
+        },
+        Input: {
+          style: {
+            color: palette.text
+          }
+        }
+      },
       mode: mode,
       spacing: {
         xs: 1,

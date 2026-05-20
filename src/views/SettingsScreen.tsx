@@ -1,8 +1,9 @@
 import { View } from "react-native";
-import { useEffect, useState } from "react"
-import { ButtonGroup, Switch, useThemeMode, Text } from "@rneui/themed";
+import { useState } from "react"
+import { ButtonGroup, Switch, Text } from "@rneui/themed";
 import { useTranslation } from "react-i18next";
 import { useAppTheme } from "../context/ThemeContext";
+import { updateLanguage, updateTheme } from "../services/settingsDbService";
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -14,11 +15,13 @@ export default function SettingsScreen() {
   function changeMode(val: boolean): void {
     setDarkMode(!darkMode);
     toggleMode();
+    updateTheme(val ? "dark" : "light");
   }
 
   function changeLanguage(val: number): void {
     setSelectedLangIdx(val);
     i18n.changeLanguage(langs[val]);
+    updateLanguage(langs[val]);
   }
 
   return (

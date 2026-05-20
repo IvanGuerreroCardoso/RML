@@ -1,4 +1,5 @@
-import { View, StyleSheet, FlatList, Button, Text } from "react-native"
+import { View, StyleSheet, FlatList } from "react-native"
+import { Text, Button } from "@rneui/themed"
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { getLists } from "../services/listsDbService";
 import { List } from '../models/models';
