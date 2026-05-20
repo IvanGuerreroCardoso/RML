@@ -1,7 +1,8 @@
 {
-  "addList": "Añadir lis  ",
+  "addList": "Añadir lista",
   "addItem": "Añadir elemento de lista",
   "yourLists": "Tus listas",
+  "settings": "Configuración",
   "listName": "Nombre de la lista",
   "name": "Nombre",
   "author": "Autor",
@@ -9,5 +10,6 @@
   "year": "Año",
   "add": "Añadir",
   "noListsMsg": "Aún no tienes listas, creemos una.",
-  "enableDarkMode": "Habilitar modo oscuro"
+  "enableDarkMode": "Habilitar modo oscuro",
+  "selectLang": "Seleccionar Idioma",
 }

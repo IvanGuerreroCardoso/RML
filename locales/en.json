@@ -10,5 +10,6 @@
   "year": "Year",
   "add": "Add",
   "noListsMsg": "You don't have lists yet, lets create one.",
-  "enableDarkMode": "Enable dark mode"
+  "enableDarkMode": "Enable dark mode",
+  "selectLang": "Select language",
 }
