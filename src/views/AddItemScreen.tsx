@@ -1,5 +1,5 @@
 import { View, StyleSheet, FlatList } from "react-native"
-import { Button, Input, ListItem } from "@rneui/base"
+import { Button, Input, ListItem } from "@rneui/themed"
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { insertAuthor, insertGenre, insertListItem, matchAuthor, matchGenre } from "../services/listItemsDbService";

@@ -5,8 +5,8 @@ enablePromise(true);
 
 var db: SQLiteDatabase | null = null;
 
-async function getDatabase(){
-  if(db != null) return db;
+async function getDatabase() {
+  if (db != null) return db;
 
   db = await openDatabase({ name: 'ratedMediaLists.db', location: 'default' })
   return db;
@@ -14,8 +14,8 @@ async function getDatabase(){
 
 const createItemsTable = async () => {
   var db = await getDatabase();
-  
-  await db.executeSql("DROP TABLE IF EXISTS Items")
+
+  //await db.executeSql("DROP TABLE IF EXISTS Items")
   //await db.executeSql("DROP TABLE IF EXISTS Authors")
   //await db.executeSql("DROP TABLE IF EXISTS Genres")
 
@@ -31,24 +31,24 @@ const createItemsTable = async () => {
     authorId INT, genreId INT,
     FOREIGN KEY (listId) REFERENCES Lists(listId) ON DELETE CASCADE)`
   )
-};    
+};
 
 const insertListItem = async (item: ListItem): Promise<number> => {
   var db = await getDatabase();
-  
+
   return (await db.executeSql(
     'INSERT INTO Items (name, listId, year, checked, rate, authorId, genreId) values (?,?,?,?,0,?,?)',
     [item.name, item.listId, item.year, item.checked, item.author?.id ?? null, item.genre?.id ?? null]
   ))[0].insertId;
 };
 
-const insertAuthor = async (name: string): Promise<number>=>{
+const insertAuthor = async (name: string): Promise<number> => {
   var db = await getDatabase();
-  
+
   return (await db.executeSql("INSERT INTO Authors (name) VALUES (?)", [name]))[0].insertId;
 }
 
-const insertGenre = async (name: string): Promise<number>=>{
+const insertGenre = async (name: string): Promise<number> => {
   var db = await getDatabase();
 
   return (await db.executeSql("INSERT INTO Genres (name) VALUES (?)", [name]))[0].insertId;
@@ -74,7 +74,7 @@ const matchGenre = async (text: string): Promise<Genre[]> => {
   }))
 }
 
-const getAllItemsCount = async (): Promise<number> =>{
+const getAllItemsCount = async (): Promise<number> => {
   var db = await getDatabase();
 
   var res = await db.executeSql(
@@ -98,13 +98,13 @@ const getListItems = async (listId: number): Promise<ListItem[]> => {
     WHERE i.listId = ?`,
     [listId]
   );
-  
-  return res[0].rows.raw().map((item: any) => ({ 
+
+  return res[0].rows.raw().map((item: any) => ({
     itemId: item.itemId, listId: item.listId,
     name: item.name, checked: !!item.checked,
-    year: item.year, rate: item.rate, 
-    author: {id: item.authorId, name: item.authorName},
-    genre: {id: item.genreId, name: item.genreName}
+    year: item.year, rate: item.rate,
+    author: { id: item.authorId, name: item.authorName },
+    genre: { id: item.genreId, name: item.genreName }
   }));
 };
 
@@ -126,7 +126,7 @@ const deleteListItem = async (id: number): Promise<number> => {
   ))[0].rowsAffected;
 };
 
-export { 
-  insertListItem, getListItems, updateListItem, deleteListItem, 
+export {
+  insertListItem, getListItems, updateListItem, deleteListItem,
   createItemsTable, insertAuthor, insertGenre, matchAuthor, matchGenre
- };
+};

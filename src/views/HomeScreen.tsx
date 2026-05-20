@@ -1,5 +1,4 @@
-import { View, StyleSheet, FlatList } from "react-native"
-import { Button, Text } from "@rneui/base"
+import { View, StyleSheet, FlatList, Button, Text } from "react-native"
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { getLists } from "../services/listsDbService";
 import { List } from '../models/models';
@@ -24,7 +23,7 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const getText = () => lists.length === 0 ? t("noListsMsg") : t("yourLists");
 
-  useEffect(()=>{
+  useEffect(() => {
     updateList();
     //getAllItemsCount().then((res)=> setCount(res));
   }, []);
@@ -32,13 +31,13 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       updateList();
-      navigation.setOptions({title: t("yourLists")});
+      navigation.setOptions({ title: t("yourLists") });
       //getAllItemsCount().then((res)=> setCount(res));
     }, [])
   );
 
-  function updateList(){
-    getLists().then((res)=>{
+  function updateList() {
+    getLists().then((res) => {
       setLists(res);
     });
     //getAllItemsCount().then((res)=> setCount(res));
@@ -51,7 +50,7 @@ export default function HomeScreen() {
       <Button title={t("addList")} onPress={() => navigation.navigate("AddList")} />
       <FlatList
         data={lists}
-        renderItem={({item}) => <RateableList list={item} updateList={updateList}/>}
+        renderItem={({ item }) => <RateableList list={item} updateList={updateList} />}
       />
     </View>
   );

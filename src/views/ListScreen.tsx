@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import { ListItem as Item, RootStackParamList } from "../models/models"
 import { getListItems } from "../services/listItemsDbService";
 import { FlatList, StyleSheet, View } from "react-native";
-import { Button, Text } from "@rneui/base";
+import { Button, Text } from "@rneui/themed";
 import { useNavigation, StaticScreenProps, useFocusEffect } from "@react-navigation/native";
 import RateableItem from "../components/RateableItem";
 import { t } from "i18next";

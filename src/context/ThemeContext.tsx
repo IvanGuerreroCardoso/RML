@@ -1,4 +1,3 @@
-// src/theme/ThemeContext.tsx
 import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 import { Theme as NavTheme } from '@react-navigation/native';
 import { Theme as ElementsTheme } from '@rneui/themed';

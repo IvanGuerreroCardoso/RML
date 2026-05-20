@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import { ListItem, Button } from "@rneui/base";
+import { ListItem, Button } from "@rneui/themed";
 import { Feather } from "@react-native-vector-icons/feather"
 import { List } from "../models/models";
 import { updateList, deleteList } from "../services/listsDbService.ts";
