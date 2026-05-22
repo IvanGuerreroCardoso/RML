@@ -5,15 +5,15 @@ enablePromise(true);
 
 var db: SQLiteDatabase | null = null;
 
-async function getDatabase(){
-  if(db != null) return db;
+async function getDatabase() {
+  if (db != null) return db;
 
   db = await openDatabase({ name: 'ratedMediaLists.db', location: 'default' })
   return db;
 };
 
 const createListTable = async () => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   return await db.executeSql(
     'CREATE TABLE IF NOT EXISTS Lists (listId INTEGER PRIMARY KEY NOT NULL, name TEXT, checked BOOLEAN);'
@@ -21,7 +21,7 @@ const createListTable = async () => {
 };
 
 const insertList = async (name: string): Promise<number> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   return (await db.executeSql(
     'INSERT INTO Lists (name, checked) values (?, false)',
@@ -30,7 +30,7 @@ const insertList = async (name: string): Promise<number> => {
 };
 
 const getLists = async (): Promise<List[]> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   let res = await db.executeSql(
     'SELECT * FROM Lists'
@@ -40,7 +40,7 @@ const getLists = async (): Promise<List[]> => {
 };
 
 const updateList = async (list: List): Promise<number> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   let res = await db.executeSql(
     'UPDATE Lists SET name = ?, checked = ? WHERE id = ?',
@@ -50,12 +50,12 @@ const updateList = async (list: List): Promise<number> => {
 };
 
 const deleteList = async (id: number): Promise<number> => {
-  var db = await getDatabase();
-  var affectedRows = 0;
-  
-  await db.transaction(async (txn)=>{
-    var deletedItemsTask = txn.executeSql("DELETE FROM Items WHERE listId = ? ", [id]);
-    var deletedListTask = txn.executeSql("DELETE FROM Lists WHERE listId = ?", [id]);
+  let db = await getDatabase();
+  let affectedRows = 0;
+
+  await db.transaction(async (txn) => {
+    let deletedItemsTask = txn.executeSql("DELETE FROM Items WHERE listId = ? ", [id]);
+    let deletedListTask = txn.executeSql("DELETE FROM Lists WHERE listId = ?", [id]);
 
     affectedRows += ((await deletedItemsTask)[1].rowsAffected + (await deletedListTask)[1].rowsAffected);
   })

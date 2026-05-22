@@ -85,9 +85,7 @@ export default function RateableItem(props: RatableListProps) {
           />
         )}
         minSlideWidth={60}
-      /*onPress={()=>navigation.navigate("List", { listId })}
-          Todo, on press goto edit item
-      */
+        onPress={() => navigation.navigate("AddItem", { listId: props.item.listId, itemId: props.item.itemId })}
       >
         <ListItem.Content>
 

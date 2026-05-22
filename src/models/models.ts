@@ -34,7 +34,7 @@ interface AppSettings {
 type RootStackParamList = {
   Home: undefined;
   AddList: undefined;
-  AddItem: { listId: number };
+  AddItem: { listId: number, itemId?: number };
   List: { listId: number; name: string };
   Settings: undefined;
 }

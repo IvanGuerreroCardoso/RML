@@ -5,7 +5,6 @@ import { insertList } from "../services/listsDbService";
 import { useNavigation } from "@react-navigation/native";
 import { t } from "i18next";
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

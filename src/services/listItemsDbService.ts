@@ -13,7 +13,7 @@ async function getDatabase() {
 };
 
 const createItemsTable = async () => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   //await db.executeSql("DROP TABLE IF EXISTS Items")
   //await db.executeSql("DROP TABLE IF EXISTS Authors")
@@ -34,7 +34,7 @@ const createItemsTable = async () => {
 };
 
 const insertListItem = async (item: ListItem): Promise<number> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   return (await db.executeSql(
     'INSERT INTO Items (name, listId, year, checked, rate, authorId, genreId) values (?,?,?,?,0,?,?)',
@@ -43,20 +43,20 @@ const insertListItem = async (item: ListItem): Promise<number> => {
 };
 
 const insertAuthor = async (name: string): Promise<number> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   return (await db.executeSql("INSERT INTO Authors (name) VALUES (?)", [name]))[0].insertId;
 }
 
 const insertGenre = async (name: string): Promise<number> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   return (await db.executeSql("INSERT INTO Genres (name) VALUES (?)", [name]))[0].insertId;
 }
 
 const matchAuthor = async (text: string): Promise<Author[]> => {
-  var db = await getDatabase();
-  var res = await db.executeSql(`SELECT rowid, name FROM Authors WHERE name MATCH '${text}*' LIMIT 5`);
+  let db = await getDatabase();
+  let res = await db.executeSql(`SELECT rowid, name FROM Authors WHERE name MATCH '${text}*' LIMIT 5`);
 
   return res[0].rows.raw().map((a: any) => ({
     name: a.name,
@@ -65,8 +65,8 @@ const matchAuthor = async (text: string): Promise<Author[]> => {
 }
 
 const matchGenre = async (text: string): Promise<Genre[]> => {
-  var db = await getDatabase();
-  var res = await db.executeSql(`SELECT rowid, name FROM Genres WHERE name MATCH '${text}*' LIMIT 5`);
+  let db = await getDatabase();
+  let res = await db.executeSql(`SELECT rowid, name FROM Genres WHERE name MATCH '${text}*' LIMIT 5`);
 
   return res[0].rows.raw().map((g: any) => ({
     name: g.name,
@@ -75,9 +75,9 @@ const matchGenre = async (text: string): Promise<Genre[]> => {
 }
 
 const getAllItemsCount = async (): Promise<number> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
-  var res = await db.executeSql(
+  let res = await db.executeSql(
     `SELECT *
     FROM Items`,
     []
@@ -87,9 +87,9 @@ const getAllItemsCount = async (): Promise<number> => {
 }
 
 const getListItems = async (listId: number): Promise<ListItem[]> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
-  var res = await db.executeSql(
+  let res = await db.executeSql(
     `SELECT i.itemId, i.listId, i.name, i.checked, i.year, i.rate,
       i.authorId, a.name as authorName, i.genreId, g.name as genreName
     FROM Items i
@@ -99,26 +99,20 @@ const getListItems = async (listId: number): Promise<ListItem[]> => {
     [listId]
   );
 
-  return res[0].rows.raw().map((item: any) => ({
-    itemId: item.itemId, listId: item.listId,
-    name: item.name, checked: !!item.checked,
-    year: item.year, rate: item.rate,
-    author: { id: item.authorId, name: item.authorName },
-    genre: { id: item.genreId, name: item.genreName }
-  }));
+  return res[0].rows.raw().map(mapToItem);
 };
 
 const updateListItem = async (item: ListItem): Promise<number> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   return (await db.executeSql(
     'UPDATE Items SET name = ?, checked = ?, year = ?, rate = ?, authorId = ?, genreId = ? WHERE itemId = ?',
-    [item.name, item.checked, item.year, item.rate, item.itemId, item.author?.id ?? null, item.author?.id ?? null]
+    [item.name, item.checked, item.year, item.rate, item.itemId, item.author?.id ?? null, item.genre?.id ?? null]
   ))[0].rowsAffected;
 };
 
 const deleteListItem = async (id: number): Promise<number> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   return (await db.executeSql(
     'DELETE FROM Items WHERE itemId = ?',
@@ -126,7 +120,33 @@ const deleteListItem = async (id: number): Promise<number> => {
   ))[0].rowsAffected;
 };
 
+const getItemById = async (itemId: number): Promise<ListItem> => {
+  let db = await getDatabase();
+
+  let res = await db.executeSql(
+    `SELECT i.itemId, i.listId, i.name, i.checked, i.year, i.rate,
+      i.authorId, a.name as authorName, i.genreId, g.name as genreName
+    FROM Items i
+    LEFT JOIN Authors a on a.rowid = i.authorId
+    LEFT JOIN Genres g on g.rowid = i.genreId
+    WHERE i.itemId = ?`,
+    [itemId]
+  );
+
+  return mapToItem(res[0].rows.item(0));
+}
+
+const mapToItem = (raw: any): ListItem => {
+  return {
+    itemId: raw.itemId, listId: raw.listId,
+    name: raw.name, checked: !!raw.checked,
+    year: raw.year, rate: raw.rate,
+    author: { id: raw.authorId, name: raw.authorName },
+    genre: { id: raw.genreId, name: raw.genreName }
+  }
+}
+
 export {
-  insertListItem, getListItems, updateListItem, deleteListItem,
+  insertListItem, getListItems, updateListItem, deleteListItem, getItemById,
   createItemsTable, insertAuthor, insertGenre, matchAuthor, matchGenre
 };

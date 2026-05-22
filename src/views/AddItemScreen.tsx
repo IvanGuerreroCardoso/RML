@@ -2,7 +2,7 @@ import { View, StyleSheet, FlatList } from "react-native"
 import { Button, Input, ListItem } from "@rneui/themed"
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { insertAuthor, insertGenre, insertListItem, matchAuthor, matchGenre } from "../services/listItemsDbService";
+import { getItemById, insertAuthor, insertGenre, insertListItem, matchAuthor, matchGenre, updateListItem } from "../services/listItemsDbService";
 import { Author, Genre, RootStackParamList } from "../models/models"
 import { t } from "i18next";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -23,7 +23,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "AddItem">;
 
 export default function AddItemScreen({ route }: Props) {
   const navigation = useNavigation();
-  const { listId } = route.params;
+  const { listId, itemId } = route.params;
   const [name, setName] = useState<string>("");
   const [author, setAuthor] = useState<string>("");
   const [authorId, setAuthorId] = useState<number>(0);
@@ -33,10 +33,27 @@ export default function AddItemScreen({ route }: Props) {
   const [authorsMatch, setAuthorsMatch] = useState<Author[]>([]);
   const [genreMatch, setGenreMatch] = useState<Genre[]>([]);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
+  const [checked, setChecked] = useState<boolean>(false);
+  const [rate, setRate] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (itemId) {
+      getItemById(itemId).then((item) => {
+        setAuthor(item.author?.name || "");
+        setAuthorId(item.author?.id || 0);
+        setGenre(item.genre?.name || "");
+        setGenreId(item.genre?.id || 0);
+        setYear(item.year.getFullYear().toString());
+        setName(item.name);
+        setChecked(item.checked);
+        setRate(item.rate);
+      })
+    }
+  }, [])
 
   async function createItem() {
-    var authorIdTask = null;
-    var genreIdTask = null;
+    let authorIdTask = null;
+    let genreIdTask = null;
 
     if (author && authorId === 0) {
       authorIdTask = insertAuthor(author);
@@ -45,19 +62,26 @@ export default function AddItemScreen({ route }: Props) {
       genreIdTask = insertGenre(genre);
     }
 
-    var authorIdToSave = authorIdTask ? await authorIdTask : authorId !== 0 ? authorId : null;
-    var genreIdToSave = genreIdTask ? await genreIdTask : genreId !== 0 ? genreId : null;
+    let authorIdToSave = authorIdTask ? await authorIdTask : authorId !== 0 ? authorId : null;
+    let genreIdToSave = genreIdTask ? await genreIdTask : genreId !== 0 ? genreId : null;
 
-    insertListItem({
-      itemId: 0, // ignored in insert, but added for consistency
-      name: name,
-      checked: false,
+    let itemToSave = {
+      itemId: itemId ?? 0,
+      name,
+      checked,
       author: authorIdToSave ? { id: authorIdToSave, name: author } : undefined,
       genre: genreIdToSave ? { id: genreIdToSave, name: genre } : undefined,
-      listId: listId,
-      year: new Date(parseInt(year), 0, 1), // parse to Date as 01/jan/yy
-      rate: null
-    }).then(() => navigation.goBack())
+      listId,
+      year: new Date(parseInt(year), 0, 1), // parse to Date as 01/01/yy
+      rate
+    }
+
+    if (itemId) {
+      updateListItem(itemToSave).then(() => navigation.goBack());
+      return;
+    }
+
+    insertListItem(itemToSave).then(() => navigation.goBack());
   };
 
   useEffect(() => {

@@ -13,7 +13,7 @@ async function getDatabase() {
 };
 
 const createSettingsTable = async () => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   await db.executeSql(
     "CREATE TABLE IF NOT EXISTS Settings (id INTEGER PRIMARY KEY NOT NULL, theme TEXT, language TEXT);"
@@ -21,7 +21,7 @@ const createSettingsTable = async () => {
 };
 
 const getSettings = async (): Promise<AppSettings | null> => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   let res = await db.executeSql("SELECT id, theme, language FROM Settings WHERE id = 1");
 
@@ -36,7 +36,7 @@ const getSettings = async (): Promise<AppSettings | null> => {
 }
 
 const updateLanguage = async (lang: string) => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   let res = await db.executeSql(
     "UPDATE Settings SET language = ? WHERE id = 1",
@@ -47,7 +47,7 @@ const updateLanguage = async (lang: string) => {
 
 
 const updateTheme = async (theme: string) => {
-  var db = await getDatabase();
+  let db = await getDatabase();
 
   let res = await db.executeSql(
     "UPDATE Settings SET theme = ? WHERE id = 1",
