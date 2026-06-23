@@ -12,5 +12,9 @@
   "noListsMsg": "You don't have lists yet, lets create one.",
   "enableDarkMode": "Enable dark mode",
   "selectLang": "Select language",
-  "noItemsInList": "This list doesn't have items yet, lets create one."
+  "noItemsInList": "This list doesn't have items yet, lets create one.",
+  "randCoise": "Choose random",
+  "edit": "Edit",
+  "editItem": "Edit item",
+  "editList": "Edit list",
 }
