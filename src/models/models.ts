@@ -33,8 +33,8 @@ interface AppSettings {
 
 type RootStackParamList = {
   Home: undefined;
-  AddList: undefined;
-  AddItem: { listId: number, itemId?: number };
+  AddList: { listId: number | null };
+  AddItem: { listId: number, itemId: number | null };
   List: { listId: number; name: string };
   Settings: undefined;
 }

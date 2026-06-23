@@ -24,7 +24,7 @@ export default function RateableList(props: RatableListProps) {
 
   function openList() {
     navigation.navigate("List", { listId, name: props.list.name })
-    navigation.setOptions({ title: props.list.name })// TODO check if need to move into the list view to change after navigation
+    //navigation.setOptions({ title: props.list.name })// TODO check if need to move into the list view to change after navigation
   }
 
   return (
@@ -35,10 +35,10 @@ export default function RateableList(props: RatableListProps) {
       leftContent={(reset) => (
         <Button
           onPress={() => {
-            markChecked();
+            navigation.navigate("AddList", { listId: props.list.listId });
             reset();
           }}
-          icon={<Feather name="eye" size={20} color="#222" />}
+          icon={<Feather name="edit" size={20} color="#222" />}
           buttonStyle={{ minHeight: '100%' }}
         />
       )}

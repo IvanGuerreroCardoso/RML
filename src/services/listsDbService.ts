@@ -39,11 +39,23 @@ const getLists = async (): Promise<List[]> => {
   return res[0].rows.raw().map((item: any) => ({ listId: item.listId, name: item.name, checked: !!item.checked }));
 };
 
+const getListById = async (id: number): Promise<List | null> => {
+  let db = await getDatabase();
+
+  let res = await db.executeSql("SELECT name, checked FROM Lists WHERE listId = ?", [id]);
+
+  if (res[0].rows.length == 0) return null;
+
+  let list = res[0].rows.item(0);
+
+  return { name: list.name, checked: list.checked, listId: id };
+}
+
 const updateList = async (list: List): Promise<number> => {
   let db = await getDatabase();
 
   let res = await db.executeSql(
-    'UPDATE Lists SET name = ?, checked = ? WHERE id = ?',
+    'UPDATE Lists SET name = ?, checked = ? WHERE listId = ?',
     [list.name, list.checked, list.listId])
 
   return res[0].rowsAffected;
@@ -63,4 +75,4 @@ const deleteList = async (id: number): Promise<number> => {
   return affectedRows;
 };
 
-export { insertList, getLists, updateList, deleteList, createListTable };
+export { insertList, getLists, updateList, deleteList, createListTable, getListById };

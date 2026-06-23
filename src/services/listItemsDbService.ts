@@ -140,7 +140,7 @@ const mapToItem = (raw: any): ListItem => {
   return {
     itemId: raw.itemId, listId: raw.listId,
     name: raw.name, checked: !!raw.checked,
-    year: raw.year, rate: raw.rate,
+    year: new Date(raw.year), rate: raw.rate,
     author: { id: raw.authorId, name: raw.authorName },
     genre: { id: raw.genreId, name: raw.genreName }
   }

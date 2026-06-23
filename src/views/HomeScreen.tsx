@@ -48,7 +48,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <Text>{getText()}</Text>
       <Text>All items count = {count}</Text>
-      <Button title={t("addList")} onPress={() => navigation.navigate("AddList")} />
+      <Button title={t("addList")} onPress={() => navigation.navigate("AddList", { listId: null })} />
       <FlatList
         data={lists}
         renderItem={({ item }) => <RateableList list={item} updateList={updateList} />}

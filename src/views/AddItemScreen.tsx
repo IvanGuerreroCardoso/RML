@@ -3,7 +3,7 @@ import { Button, Input, ListItem } from "@rneui/themed"
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { getItemById, insertAuthor, insertGenre, insertListItem, matchAuthor, matchGenre, updateListItem } from "../services/listItemsDbService";
-import { Author, Genre, RootStackParamList } from "../models/models"
+import { Author, Genre, RootStackParamList, ListItem as Item } from "../models/models"
 import { t } from "i18next";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -35,15 +35,18 @@ export default function AddItemScreen({ route }: Props) {
   const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
   const [checked, setChecked] = useState<boolean>(false);
   const [rate, setRate] = useState<number | null>(null);
+  const [originalItem, setOriginalItem] = useState<Item | null>(null);
 
   useEffect(() => {
     if (itemId) {
+      navigation.setOptions({ title: t("editItem") });
       getItemById(itemId).then((item) => {
+        setOriginalItem(item);
         setAuthor(item.author?.name || "");
         setAuthorId(item.author?.id || 0);
         setGenre(item.genre?.name || "");
         setGenreId(item.genre?.id || 0);
-        setYear(item.year.getFullYear().toString());
+        setYear(new Date(item.year).getFullYear().toString());
         setName(item.name);
         setChecked(item.checked);
         setRate(item.rate);
@@ -85,8 +88,18 @@ export default function AddItemScreen({ route }: Props) {
   };
 
   useEffect(() => {
-    setBtnDisabled(name === "" || author === "");
-  }, [name, author, authorsMatch, genreMatch])
+    if (!originalItem) {
+      setBtnDisabled(name === "" || author === "");
+      return;
+    }
+
+    setBtnDisabled(
+      name === originalItem.name &&
+      author === originalItem.author?.name &&
+      year === originalItem.year.getFullYear().toString() &&
+      genre === originalItem.genre?.name
+    )
+  }, [name, author, authorsMatch, genreMatch, year, genre, originalItem])
 
   function authorChanged(txt: string) {
     setAuthor(txt);
@@ -144,7 +157,10 @@ export default function AddItemScreen({ route }: Props) {
         getMatchesFlatList(genreMatch, genreSelected)
       }
       <Input placeholder={t("year")} value={year} onChangeText={setYear} keyboardType="numeric" />
-      <Button title={t("add")} onPress={() => createItem()} disabled={btnDisabled} />
+      <Button
+        title={itemId ? t("edit") : t("add")}
+        onPress={() => createItem()} disabled={btnDisabled}
+      />
     </View>
   );
 }
