@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useState } from "react"
 import { ButtonGroup, Switch, Text } from "@rneui/themed";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,7 @@ export default function SettingsScreen() {
   const { mode, toggleMode } = useAppTheme();
   const [darkMode, setDarkMode] = useState(mode === "dark");
   const [selectedLangIdx, setSelectedLangIdx] = useState(langs.indexOf(i18n.language.split("-")[0]));
+  const { theme } = useAppTheme();
 
   function changeMode(val: boolean): void {
     setDarkMode(!darkMode);
@@ -39,6 +40,8 @@ export default function SettingsScreen() {
           buttons={["English", "Español"]}
           selectedIndex={selectedLangIdx}
           onPress={(val: number): void => changeLanguage(val)}
+          containerStyle={{ backgroundColor: theme.colors?.card }}
+          textStyle={{ color: theme.colors?.text }}
         />
       </View>
     </View>

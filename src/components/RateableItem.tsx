@@ -13,9 +13,6 @@ interface RatableListProps {
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    backgroundColor: "#fff",
-  },
   modalView: {
     minWidth: 200
   },
@@ -102,7 +99,7 @@ export default function RateableItem(props: RatableListProps) {
       <Overlay
         isVisible={rateVisible}
         onBackdropPress={() => setRateVisible(false)}
-        style={styles.overlay}>
+      >
         <View style={styles.modalView}>
           <Slider
             value={rate}

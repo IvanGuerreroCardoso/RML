@@ -38,7 +38,7 @@ function RootStack() {
         name="AddList"
         component={AddListScreen}
         options={{
-          title: t("addLists")
+          title: t("addList")
         }}
       />
       <Stack.Screen
