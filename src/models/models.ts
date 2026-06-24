@@ -31,6 +31,12 @@ interface AppSettings {
   language: string | null
 }
 
+enum CheckedEnum {
+  All,
+  Seen,
+  Unseen,
+}
+
 type RootStackParamList = {
   Home: undefined;
   AddList: { listId: number | null };
@@ -40,3 +46,4 @@ type RootStackParamList = {
 }
 
 export type { ListItem, List, Author, Genre, RootStackParamList, AppSettings }
+export { CheckedEnum }
