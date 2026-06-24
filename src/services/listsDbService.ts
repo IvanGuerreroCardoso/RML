@@ -61,6 +61,16 @@ const updateList = async (list: List): Promise<number> => {
   return res[0].rowsAffected;
 };
 
+const updateListCheck = async (listId: number, checked: boolean) => {
+  let db = await getDatabase();
+
+  let res = await db.executeSql(
+    'UPDATE Lists SET checked = ? WHERE listId = ?',
+    [checked, listId])
+
+  return res[0].rowsAffected;
+}
+
 const deleteList = async (id: number): Promise<number> => {
   let db = await getDatabase();
   let affectedRows = 0;
@@ -75,4 +85,4 @@ const deleteList = async (id: number): Promise<number> => {
   return affectedRows;
 };
 
-export { insertList, getLists, updateList, deleteList, createListTable, getListById };
+export { insertList, getLists, updateList, deleteList, createListTable, getListById, updateListCheck };

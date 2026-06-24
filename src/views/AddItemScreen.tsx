@@ -6,6 +6,7 @@ import { getItemById, insertAuthor, insertGenre, insertListItem, matchAuthor, ma
 import { Author, Genre, RootStackParamList, ListItem as Item } from "../models/models"
 import { t } from "i18next";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { updateListCheck } from "../services/listsDbService";
 
 const styles = StyleSheet.create({
   container: {
@@ -84,7 +85,13 @@ export default function AddItemScreen({ route }: Props) {
       return;
     }
 
-    insertListItem(itemToSave).then(() => navigation.goBack());
+    let uncheckListTask = updateListCheck(listId, false);
+    let insertListItemTask = insertListItem(itemToSave);
+
+    await uncheckListTask;
+    await insertListItemTask;
+
+    navigation.goBack();
   };
 
   useEffect(() => {
