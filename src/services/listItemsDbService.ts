@@ -19,18 +19,19 @@ const createItemsTable = async () => {
   //await db.executeSql("DROP TABLE IF EXISTS Authors")
   //await db.executeSql("DROP TABLE IF EXISTS Genres")
 
-  await db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Authors USING fts4(name TEXT)")
+  let authTableTask = db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Authors USING fts4(name TEXT)");
+  let genreTableTask = db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Genres USING fts4(name TEXT)");
+  let enableForeignKeysTask = db.executeSql("PRAGMA foreign_keys = ON;");
+  let itemsTableTask = db.executeSql(`
+CREATE TABLE IF NOT EXISTS Items 
+(itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year DATE, checked BOOLEAN, rate INTEGER,
+authorId INT, genreId INT)`
+  );
 
-  await db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Genres USING fts4(name TEXT)")
-
-  await db.executeSql("PRAGMA foreign_keys = ON;");
-
-  return await db.executeSql(`
-    CREATE TABLE IF NOT EXISTS Items 
-    (itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year DATE, checked BOOLEAN, rate INTEGER,
-    authorId INT, genreId INT,
-    FOREIGN KEY (listId) REFERENCES Lists(listId) ON DELETE CASCADE)`
-  )
+  await genreTableTask;
+  await authTableTask;
+  await enableForeignKeysTask;
+  await itemsTableTask;
 };
 
 const insertListItem = async (item: ListItem): Promise<number> => {
@@ -114,10 +115,23 @@ const updateListItem = async (item: ListItem): Promise<number> => {
 const deleteListItem = async (id: number): Promise<number> => {
   let db = await getDatabase();
 
-  return (await db.executeSql(
+  let result: number = (await db.executeSql(
     'DELETE FROM Items WHERE itemId = ?',
     [id]
   ))[0].rowsAffected;
+
+  let authCleanupTask = db.executeSql(`DELETE FROM Authors a WHERE a.rowid NOT IN(
+    SELECT i.authorId FROM Items i
+  )`);
+
+  let genreCleanupTask = db.executeSql(`DELETE FROM Genres g WHERE g.rowid NOT IN(
+    SELECT i.genreId FROM Items i
+  )`)
+
+  await authCleanupTask;
+  await genreCleanupTask;
+
+  return result;
 };
 
 const getItemById = async (itemId: number): Promise<ListItem> => {
