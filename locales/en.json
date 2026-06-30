@@ -27,4 +27,6 @@
   "from": "From",
   "to": "to",
   "invalidRange": "Invalid range",
+  "searchByN/A/G": "Search by name, author, or genre",
+  "searchByName": "Search by name"
 }

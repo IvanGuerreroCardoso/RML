@@ -27,4 +27,6 @@
   "from": "Desde",
   "to": "hasta",
   "invalidRange": "Rango inválido",
+  "searchByN/A/G": "Buscar por nombre, autor o año",
+  "searchByName": "Buscar por nombre"
 }

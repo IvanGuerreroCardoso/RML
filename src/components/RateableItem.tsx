@@ -6,6 +6,7 @@ import { deleteListItem, updateListItem } from "../services/listItemsDbService.t
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useAppTheme } from "../context/ThemeContext.tsx";
+import { updateListCheck } from "../services/listsDbService.ts";
 
 interface RatableListProps {
   item: Item,
@@ -31,7 +32,9 @@ export default function RateableItem(props: RatableListProps) {
 
   function markChecked() {
     if (props.item.checked) {
-      updateListItem({ ...props.item, rate: 0, checked: false }).then(() => props.updateList());
+      updateListItem({ ...props.item, rate: 0, checked: false }).then(() => {
+        props.updateList();
+      });
       return;
     }
 
@@ -46,10 +49,10 @@ export default function RateableItem(props: RatableListProps) {
   }
 
   function deleteItem() {
-    deleteListItem(props.item.itemId!).then(() => props.updateList());
+    deleteListItem(props.item.itemId!, props.item.author?.id ?? null, props.item.genre?.id ?? null).then(() => props.updateList());
   };
 
-  const year = new Date(props.item.year).getFullYear();
+  const year = props.item.year?.getFullYear() ?? "";
 
   const ratingCompleted = (rating: number) => {
     setRate(rating);
@@ -86,13 +89,18 @@ export default function RateableItem(props: RatableListProps) {
       >
         <ListItem.Content>
 
-          <ListItem.Title style={{ color: theme.colors?.text }}>{props.item.checked === true &&
+          <ListItem.Title style={{ color: theme.colors?.text }}>{props.item.checked &&
             <Feather
               name="check-square"
               size={20}
               color="#26a50d"
-            />}{props.item.name}</ListItem.Title>
-          <ListItem.Subtitle style={{ color: theme.colors?.text }}>{props.item.author?.name} | {year}{props.item.rate ? ` | ${props.item.rate}/10` : ""}</ListItem.Subtitle>
+            />}{props.item.checked && " "}{props.item.name}</ListItem.Title>
+          <ListItem.Subtitle style={{ color: theme.colors?.text }}>
+            {props.item.author?.name}
+            {props.item.genre?.name && `  -  ${props.item.genre.name}`}
+            {year && `  -  ${year}`}
+            {props.item.rate ? `  -  ${props.item.rate}/10` : ""}
+          </ListItem.Subtitle>
         </ListItem.Content>
         <Feather name="chevron-right" size={20} color={theme.colors?.text} />
       </ListItem.Swipeable>
@@ -121,7 +129,7 @@ export default function RateableItem(props: RatableListProps) {
             }}
           />
           <Text style={styles.rateText}>{rate} / 10</Text>
-          <Button onPress={rateAndSave} disabled={!rateChanged} >Ok</Button>
+          <Button onPress={() => rateAndSave()} disabled={!rateChanged} >Ok</Button>
         </View>
       </Overlay>
     </>

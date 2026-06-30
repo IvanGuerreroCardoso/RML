@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { useState } from "react"
 import { ButtonGroup, Switch, Text } from "@rneui/themed";
 import { useTranslation } from "react-i18next";
@@ -26,8 +26,8 @@ export default function SettingsScreen() {
   }
 
   return (
-    <View>
-      <View>
+    <View style={{ marginHorizontal: 10 }}>
+      <View style={{ flexDirection: "row", marginVertical: 15, marginRight: 10, alignItems: "center", justifyContent: "space-between" }}>
         <Text>{t("enableDarkMode")}</Text>
         <Switch
           value={darkMode}

@@ -8,5 +8,6 @@ declare module '@rneui/themed' {
     card: string;
     notification: string;
     mutedText: string;
+    primCard: string;
   }
 }

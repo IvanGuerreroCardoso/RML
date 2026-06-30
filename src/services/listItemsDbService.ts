@@ -15,10 +15,6 @@ async function getDatabase() {
 const createItemsTable = async () => {
   let db = await getDatabase();
 
-  //await db.executeSql("DROP TABLE IF EXISTS Items")
-  //await db.executeSql("DROP TABLE IF EXISTS Authors")
-  //await db.executeSql("DROP TABLE IF EXISTS Genres")
-
   let authTableTask = db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Authors USING fts4(name TEXT)");
   let genreTableTask = db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Genres USING fts4(name TEXT)");
   let enableForeignKeysTask = db.executeSql("PRAGMA foreign_keys = ON;");
@@ -75,18 +71,6 @@ const matchGenre = async (text: string): Promise<Genre[]> => {
   }))
 }
 
-const getAllItemsCount = async (): Promise<number> => {
-  let db = await getDatabase();
-
-  let res = await db.executeSql(
-    `SELECT *
-    FROM Items`,
-    []
-  );
-  console.log(res[0].rows.raw())
-  return res[0].rows.raw().length;
-}
-
 const getListItems = async (listId: number): Promise<ListItem[]> => {
   let db = await getDatabase();
 
@@ -108,11 +92,11 @@ const updateListItem = async (item: ListItem): Promise<number> => {
 
   return (await db.executeSql(
     'UPDATE Items SET name = ?, checked = ?, year = ?, rate = ?, authorId = ?, genreId = ? WHERE itemId = ?',
-    [item.name, item.checked, item.year, item.rate, item.itemId, item.author?.id ?? null, item.genre?.id ?? null]
+    [item.name, item.checked, item.year, item.rate, item.author!.id!, item.genre?.id ?? null, item.itemId]
   ))[0].rowsAffected;
 };
 
-const deleteListItem = async (id: number): Promise<number> => {
+const deleteListItem = async (id: number, authorId: number | null, genreId: number | null): Promise<number> => {
   let db = await getDatabase();
 
   let result: number = (await db.executeSql(
@@ -120,16 +104,23 @@ const deleteListItem = async (id: number): Promise<number> => {
     [id]
   ))[0].rowsAffected;
 
-  let authCleanupTask = db.executeSql(`DELETE FROM Authors a WHERE a.rowid NOT IN(
-    SELECT i.authorId FROM Items i
-  )`);
 
-  let genreCleanupTask = db.executeSql(`DELETE FROM Genres g WHERE g.rowid NOT IN(
-    SELECT i.genreId FROM Items i
-  )`)
+  let authorCleanupTask: Promise<any> | null = null;
+  if (authorId) {
+    authorCleanupTask = db.executeSql(`DELETE FROM Authors WHERE rowid = ? AND rowid NOT IN(
+      SELECT i.authorId FROM Items i WHERE i.authorId = ?
+    )`, [authorId, authorId]);
+  }
 
-  await authCleanupTask;
-  await genreCleanupTask;
+  let genreCleanupTask: Promise<any> | null = null;
+  if (genreId) {
+    genreCleanupTask = db.executeSql(`DELETE FROM Genres WHERE rowid = ? AND rowid NOT IN(
+      SELECT i.genreId FROM Items i WHERE i.genreId = ?
+    )`, [genreId, authorId]);
+  }
+
+  authorCleanupTask && await authorCleanupTask;
+  genreCleanupTask && await genreCleanupTask;
 
   return result;
 };
@@ -154,7 +145,7 @@ const mapToItem = (raw: any): ListItem => {
   return {
     itemId: raw.itemId, listId: raw.listId,
     name: raw.name, checked: !!raw.checked,
-    year: new Date(raw.year), rate: raw.rate,
+    year: raw.year === null ? null : new Date(raw.year), rate: raw.rate,
     author: { id: raw.authorId, name: raw.authorName },
     genre: { id: raw.genreId, name: raw.genreName }
   }

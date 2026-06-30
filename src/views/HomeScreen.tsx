@@ -1,13 +1,13 @@
 import { View, StyleSheet, FlatList } from "react-native"
-import { Text, Button } from "@rneui/themed"
+import { Text, Button, SearchBar } from "@rneui/themed"
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { getLists } from "../services/listsDbService";
 import { List } from '../models/models';
 import { useEffect, useState, useCallback } from "react";
 import RateableList from "../components/RateableList";
 import { t } from "i18next";
-//import { getAllItemsCount } from "../services/listItemsDbService";
-
+import Feather from "@react-native-vector-icons/feather";
+import { useAppTheme } from "../context/ThemeContext";
 
 const styles = StyleSheet.create({
   container: {
@@ -19,21 +19,28 @@ const styles = StyleSheet.create({
 })
 
 export default function HomeScreen() {
-  const [lists, setLists] = useState<List[]>([])
-  const [count, setCount] = useState<number>(0);
+  const [lists, setLists] = useState<List[]>([]);
+  const [shownLists, setShownLists] = useState<List[]>([]);
+  const [searchTxt, setSearchTxt] = useState("")
   const navigation = useNavigation();
-  const getText = () => lists.length === 0 ? t("noListsMsg") : t("yourLists");
+  const { theme } = useAppTheme();
 
   useEffect(() => {
     updateList();
-    //getAllItemsCount().then((res)=> setCount(res));
   }, []);
+
+  useEffect(() => {
+    if (searchTxt) {
+      setShownLists(lists.filter(l => strContains(l.name, searchTxt)));
+      return;
+    }
+    setShownLists(lists);
+  }, [searchTxt, lists])
 
   useFocusEffect(
     useCallback(() => {
       updateList();
       navigation.setOptions({ title: t("yourLists") });
-      //getAllItemsCount().then((res)=> setCount(res));
     }, [])
   );
 
@@ -41,16 +48,31 @@ export default function HomeScreen() {
     getLists().then((res) => {
       setLists(res);
     });
-    //getAllItemsCount().then((res)=> setCount(res));
+  }
+
+  function strContains(str: string, substr: string) {
+    if (!str)
+      return false;
+    return str.toLowerCase().includes(substr.toLowerCase());
   }
 
   return (
     <View style={styles.container}>
-      <Text>{getText()}</Text>
-      <Text>All items count = {count}</Text>
-      <Button title={t("addList")} onPress={() => navigation.navigate("AddList", { listId: null })} />
+      {lists.length === 0 && <Text>{t("noListsMsg")}</Text>}
+      <Button
+        title={t("addList")}
+        onPress={() => navigation.navigate("AddList", { listId: null })}
+        buttonStyle={{ margin: 10, height: 40, width: "auto" }}
+      />
+      <SearchBar
+        placeholder={t("searchByName")}
+        value={searchTxt}
+        onChangeText={setSearchTxt}
+        style={{ color: theme.colors?.text, minWidth: 600 }}
+        searchIcon={<Feather name="search" size={15} color={theme.colors?.text} />}
+      />
       <FlatList
-        data={lists}
+        data={shownLists}
         renderItem={({ item }) => <RateableList list={item} updateList={updateList} />}
       />
     </View>

@@ -4,7 +4,7 @@ interface ListItem {
   name: string,
   author?: Author,
   genre?: Genre,
-  year: Date,
+  year: Date | null,
   checked: boolean,
   rate: number | null
 }

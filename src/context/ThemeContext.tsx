@@ -12,23 +12,28 @@ interface ThemeContextProps {
 }
 
 const LightPalette = {
-  primary: '#6200ee',
-  background: '#ffffff',
+  primary: '#8d45f5',
+  background: '#ededed',
   card: '#f8f9fa',
-  text: '#000000',
+  text: '#121212',
   mutedText: "#777",
   border: '#c7c7c7',
   notification: '#ff80ab',
+  error: "#9c0c00",
+  primCard: "#d1bbf0"
+
 } as const;
 
 const DarkPalette = {
-  primary: '#bb86fc',
+  primary: "#a878e3",
   background: '#121212',
   card: '#1f1f1f',
-  text: '#ffffff',
+  text: '#ededed',
   mutedText: "#555",
   border: '#272727',
   notification: '#ff80ab',
+  error: "#ff5d1a",
+  primCard: "#9984b3"
 } as const;
 
 const DefaultFonts: Record<string, any> = {
@@ -70,7 +75,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         card: palette.card,
         text: palette.text,
         border: palette.border,
-        notification: palette.notification
+        notification: palette.notification,
       },
       fonts: {
         regular: { fontFamily: "", fontWeight: 'normal' },
@@ -82,7 +87,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
     return {
       ...navigationTheme,
-      colors: navigationTheme.colors as Colors,
+      colors: palette as Colors,
       fonts: DefaultFonts,
       components: {
         Text: {

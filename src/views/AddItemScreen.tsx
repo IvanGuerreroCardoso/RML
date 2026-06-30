@@ -7,6 +7,7 @@ import { Author, Genre, RootStackParamList, ListItem as Item } from "../models/m
 import { t } from "i18next";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { updateListCheck } from "../services/listsDbService";
+import { useAppTheme } from "../context/ThemeContext";
 
 const styles = StyleSheet.create({
   container: {
@@ -25,14 +26,16 @@ type Props = NativeStackScreenProps<RootStackParamList, "AddItem">;
 export default function AddItemScreen({ route }: Props) {
   const navigation = useNavigation();
   const { listId, itemId } = route.params;
+  const { theme } = useAppTheme();
+
   const [name, setName] = useState<string>("");
   const [author, setAuthor] = useState<string>("");
   const [authorId, setAuthorId] = useState<number>(0);
   const [genre, setGenre] = useState<string>("");
   const [genreId, setGenreId] = useState<number>(0);
   const [year, setYear] = useState<string>("");
-  const [authorsMatch, setAuthorsMatch] = useState<Author[]>([]);
-  const [genreMatch, setGenreMatch] = useState<Genre[]>([]);
+  const [authorMatches, setAuthorMatches] = useState<Author[]>([]);
+  const [genreMatches, setGenreMatches] = useState<Genre[]>([]);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
   const [checked, setChecked] = useState<boolean>(false);
   const [rate, setRate] = useState<number | null>(null);
@@ -47,7 +50,7 @@ export default function AddItemScreen({ route }: Props) {
         setAuthorId(item.author?.id || 0);
         setGenre(item.genre?.name || "");
         setGenreId(item.genre?.id || 0);
-        setYear(new Date(item.year).getFullYear().toString());
+        setYear(item.year ? new Date(item.year).getFullYear().toString() : "");
         setName(item.name);
         setChecked(item.checked);
         setRate(item.rate);
@@ -58,16 +61,29 @@ export default function AddItemScreen({ route }: Props) {
   async function createItem() {
     let authorIdTask = null;
     let genreIdTask = null;
+    let existentAuthorId: number | null = null;
+    let existentGenreId: number | null = null;
 
-    if (author && authorId === 0) {
+    if (authorMatches.length > 0) {
+      let existentAuthor = authorMatches.find(a => a.name === author);
+      existentAuthorId = existentAuthor?.id ?? null;
+    }
+
+    if (genreMatches.length > 0) {
+      let existentGenre = genreMatches.find(a => a.name === genre);
+      existentGenreId = existentGenre?.id ?? null;
+    }
+
+    if (author && !existentAuthorId && authorId === 0) {
       authorIdTask = insertAuthor(author);
     }
-    if (genre && genreId === 0) {
+
+    if (genre && !existentGenreId && genreId === 0) {
       genreIdTask = insertGenre(genre);
     }
 
-    let authorIdToSave = authorIdTask ? await authorIdTask : authorId !== 0 ? authorId : null;
-    let genreIdToSave = genreIdTask ? await genreIdTask : genreId !== 0 ? genreId : null;
+    let authorIdToSave = authorIdTask ? await authorIdTask : authorId !== 0 ? authorId : existentAuthorId;
+    let genreIdToSave = genreIdTask ? await genreIdTask : genreId !== 0 ? genreId : existentGenreId;
 
     let itemToSave = {
       itemId: itemId ?? 0,
@@ -76,7 +92,7 @@ export default function AddItemScreen({ route }: Props) {
       author: authorIdToSave ? { id: authorIdToSave, name: author } : undefined,
       genre: genreIdToSave ? { id: genreIdToSave, name: genre } : undefined,
       listId,
-      year: new Date(parseInt(year), 0, 1), // parse to Date as 01/01/yy
+      year: year ? new Date(parseInt(year), 0, 1) : null, // parse to Date as 01/01/yy
       rate
     }
 
@@ -103,39 +119,43 @@ export default function AddItemScreen({ route }: Props) {
     setBtnDisabled(
       name === originalItem.name &&
       author === originalItem.author?.name &&
-      year === originalItem.year.getFullYear().toString() &&
+      year === (originalItem.year?.getFullYear().toString() ?? "") &&
       genre === originalItem.genre?.name
     )
-  }, [name, author, authorsMatch, genreMatch, year, genre, originalItem])
+  }, [name, author, authorMatches, genreMatches, year, genre, originalItem])
 
   function authorChanged(txt: string) {
     setAuthor(txt);
     setAuthorId(0);
 
-    if (txt.length > 2) {
-      matchAuthor(txt).then(res => setAuthorsMatch(res));
+    if (txt.length <= 2) {
+      setAuthorMatches([]);
+      return;
     }
+    matchAuthor(txt).then(res => setAuthorMatches(res));
   }
 
   function genreChanged(txt: string) {
     setGenre(txt);
     setGenreId(0);
 
-    if (txt.length > 2) {
-      matchGenre(txt).then(res => setGenreMatch(res));
+    if (txt.length <= 2) {
+      setGenreMatches([]);
+      return;
     }
+    matchGenre(txt).then(res => setGenreMatches(res));
   }
 
   function authorSelected(author: Author) {
     setAuthor(author.name);
     setAuthorId(author.id);
-    setAuthorsMatch([]);
+    setAuthorMatches([]);
   }
 
   function genreSelected(author: Author) {
     setGenre(author.name);
     setGenreId(author.id);
-    setGenreMatch([]);
+    setGenreMatches([]);
   }
 
   function getMatchesFlatList(list: Author[] | Genre[], itemSelected: (item: Author | Genre) => void) {
@@ -144,7 +164,10 @@ export default function AddItemScreen({ route }: Props) {
         data={list}
         style={styles.flatList}
         keyExtractor={item => item.id + item.name}
-        renderItem={({ item }) => <ListItem onPress={() => itemSelected(item)}><ListItem.Title>{item.name}</ListItem.Title></ListItem>}
+        renderItem={({ item }) => (
+          <ListItem containerStyle={{ backgroundColor: theme.colors?.primCard }} onPress={() => itemSelected(item)}>
+            <ListItem.Title style={{ color: theme.colors?.black }}>{item.name}</ListItem.Title>
+          </ListItem>)}
         persistentScrollbar={list.length > 2}
         showsVerticalScrollIndicator={true}
         scrollEnabled={true}
@@ -156,12 +179,12 @@ export default function AddItemScreen({ route }: Props) {
     <View style={styles.container}>
       <Input placeholder={t("name")} value={name} onChangeText={setName} />
       <Input placeholder={t("author")} value={author} onChangeText={authorChanged} />
-      {authorsMatch.length > 0 &&
-        getMatchesFlatList(authorsMatch, authorSelected)
+      {authorMatches.length > 0 &&
+        getMatchesFlatList(authorMatches, authorSelected)
       }
       <Input placeholder={t("genre")} value={genre} onChangeText={genreChanged} />
-      {genreMatch.length > 0 &&
-        getMatchesFlatList(genreMatch, genreSelected)
+      {genreMatches.length > 0 &&
+        getMatchesFlatList(genreMatches, genreSelected)
       }
       <Input placeholder={t("year")} value={year} onChangeText={setYear} keyboardType="numeric" />
       <Button
