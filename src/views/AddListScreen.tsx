@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { t } from "i18next";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList, List } from "../models/models";
+import { useAppTheme } from "../context/ThemeContext";
 
 const styles = StyleSheet.create({
   container: {
@@ -17,6 +18,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "AddList">;
 
 export default function AddListScreen({ route }: Props) {
   const { listId } = route.params;
+  const { theme } = useAppTheme();
   const navigation = useNavigation();
   const [name, setName] = useState<string>("");
   const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
@@ -49,8 +51,18 @@ export default function AddListScreen({ route }: Props) {
 
   return (
     <View style={styles.container}>
-      <Input placeholder={t("listName")} value={name} onChangeText={listNameChanged} />
-      <Button title={listId ? t("edit") : t("add")} onPress={() => createList()} disabled={btnDisabled} />
+      <Input
+        onChangeText={setName}
+        placeholder={t("listName")}
+        placeholderTextColor={theme.colors?.mutedText}
+        value={name}
+      />
+      <Button
+        title={listId ? t("edit") : t("add")}
+        onPress={() => createList()}
+        buttonStyle={{ marginHorizontal: 10, height: 40 }}
+        disabled={name === ""}
+      />
     </View>
   );
 }

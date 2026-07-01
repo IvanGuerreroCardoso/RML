@@ -177,19 +177,21 @@ export default function AddItemScreen({ route }: Props) {
 
   return (
     <View style={styles.container}>
-      <Input placeholder={t("name")} value={name} onChangeText={setName} />
-      <Input placeholder={t("author")} value={author} onChangeText={authorChanged} />
+      <Input placeholder={t("name")} placeholderTextColor={theme.colors?.mutedText} value={name} onChangeText={setName} />
+      <Input placeholder={t("author")} placeholderTextColor={theme.colors?.mutedText} value={author} onChangeText={authorChanged} />
       {authorMatches.length > 0 &&
         getMatchesFlatList(authorMatches, authorSelected)
       }
-      <Input placeholder={t("genre")} value={genre} onChangeText={genreChanged} />
+      <Input placeholder={t("genre")} placeholderTextColor={theme.colors?.mutedText} value={genre} onChangeText={genreChanged} />
       {genreMatches.length > 0 &&
         getMatchesFlatList(genreMatches, genreSelected)
       }
-      <Input placeholder={t("year")} value={year} onChangeText={setYear} keyboardType="numeric" />
+      <Input placeholder={t("year")} placeholderTextColor={theme.colors?.mutedText} value={year} onChangeText={setYear} keyboardType="numeric" />
       <Button
         title={itemId ? t("edit") : t("add")}
-        onPress={() => createItem()} disabled={btnDisabled}
+        onPress={() => createItem()}
+        buttonStyle={{ marginHorizontal: 10, height: 40 }}
+        disabled={btnDisabled}
       />
     </View>
   );

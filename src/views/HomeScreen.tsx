@@ -66,6 +66,7 @@ export default function HomeScreen() {
       />
       <SearchBar
         placeholder={t("searchByName")}
+        placeholderTextColor={theme.colors?.mutedText}
         value={searchTxt}
         onChangeText={setSearchTxt}
         style={{ color: theme.colors?.text, minWidth: 600 }}

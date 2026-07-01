@@ -35,7 +35,7 @@ const insertListItem = async (item: ListItem): Promise<number> => {
 
   return (await db.executeSql(
     'INSERT INTO Items (name, listId, year, checked, rate, authorId, genreId) values (?,?,?,?,0,?,?)',
-    [item.name, item.listId, item.year, item.checked, item.author?.id ?? null, item.genre?.id ?? null]
+    [item.name, item.listId, item.year?.toString(), item.checked, item.author?.id ?? null, item.genre?.id ?? null]
   ))[0].insertId;
 };
 
@@ -92,7 +92,7 @@ const updateListItem = async (item: ListItem): Promise<number> => {
 
   return (await db.executeSql(
     'UPDATE Items SET name = ?, checked = ?, year = ?, rate = ?, authorId = ?, genreId = ? WHERE itemId = ?',
-    [item.name, item.checked, item.year, item.rate, item.author!.id!, item.genre?.id ?? null, item.itemId]
+    [item.name, item.checked, item.year?.toString(), item.rate, item.author!.id!, item.genre?.id ?? null, item.itemId]
   ))[0].rowsAffected;
 };
 

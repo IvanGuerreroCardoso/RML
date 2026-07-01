@@ -25,27 +25,18 @@ export default function RateableList(props: RatableListProps) {
 
   return (
     <ListItem.Swipeable
+      bottomDivider
       leftWidth={60}
       rightWidth={60}
       minSlideWidth={60}
-      leftContent={(reset) => (
-        <Button
-          onPress={() => {
-            navigation.navigate("AddList", { listId: props.list.listId });
-            reset();
-          }}
-          icon={<Feather name="edit" size={20} color="#222" />}
-          buttonStyle={{ minHeight: '100%' }}
-        />
-      )}
       rightContent={(reset) => (
         <Button
           onPress={() => {
             deleteMyList();
             reset();
           }}
-          icon={<Feather name="trash" size={20} color="#222" />}
-          buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
+          icon={<Feather name="trash" size={20} color={theme.colors?.text} />}
+          buttonStyle={{ minHeight: '100%', backgroundColor: theme.colors?.error }}
         />
       )}
       onPress={() => openList()}>

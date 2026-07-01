@@ -17,9 +17,9 @@ const LightPalette = {
   card: '#f8f9fa',
   text: '#121212',
   mutedText: "#777",
-  border: '#c7c7c7',
+  border: '#888',
   notification: '#ff80ab',
-  error: "#9c0c00",
+  error: "#d91909",
   primCard: "#d1bbf0"
 
 } as const;

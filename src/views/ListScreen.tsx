@@ -80,7 +80,9 @@ export default function ListScreen({ route }: Props) {
 
   function pickRand() {
     let filteredList = shownList.filter(i => !i.checked);
-    setRandomActiveElem((filteredList.length > 0 ? filteredList : shownList)[Math.round(Math.random() * (shownList.length - 1))]);
+    let listToPickFrom = filteredList.length > 0 ? filteredList : shownList;
+
+    setRandomActiveElem(listToPickFrom[Math.floor(Math.random() * (listToPickFrom.length))]);
     setRandElemPickOpen(true);
   }
 
@@ -128,7 +130,9 @@ export default function ListScreen({ route }: Props) {
         value={searchTxt}
         onChangeText={setSearchTxt}
         style={{ color: theme.colors?.text, minWidth: 600 }}
-        searchIcon={<Feather name="search" size={15} color={theme.colors?.text} />}
+        placeholderTextColor={theme.colors?.mutedText}
+        searchIcon={<Feather name="search" size={15} color={theme.colors?.text}
+        />}
       />
       <FlatList
         data={shownList}
@@ -140,19 +144,22 @@ export default function ListScreen({ route }: Props) {
           color={theme.colors?.primary}
           placement="right"
           size="small"
-          icon={<Feather name="box" color={theme.colors?.text} size={20} />}
+          icon={<Feather name="box" color={theme.colors?.card} size={20} />}
           onPress={() => pickRand()}
-          title={<Text> {t("randChoise")}</Text>}
+          titleStyle={{ color: theme.colors?.card }}
+          title={t("randChoise")}
+          containerStyle={{ marginBottom: 15 }}
         />
       }
       <Overlay
         isVisible={randElemPickOpen}
         onBackdropPress={() => setRandElemPickOpen(false)}
+        overlayStyle={{ borderWidth: 2, padding: 0, borderColor: theme.colors?.border, width: "80%", height: 80 }}
       >
         <View
-          style={{ minWidth: 300, backgroundColor: theme.colors?.background, borderColor: theme.colors?.border, borderWidth: 1 }}
+          style={{ backgroundColor: theme.colors?.background, flex: 1, margin: 0 }}
         >
-          <ListItem>
+          <ListItem containerStyle={{ margin: 0 }}>
             <ListItem.Content>
 
               <ListItem.Title style={{ color: theme.colors?.text }}>{randomActiveElem?.checked === true &&
@@ -160,7 +167,7 @@ export default function ListScreen({ route }: Props) {
                   name="check-square"
                   size={20}
                   color="#26a50d"
-                />}{randomActiveElem?.name}</ListItem.Title>
+                />}{randomActiveElem?.checked && ' '}{randomActiveElem?.name}</ListItem.Title>
               <ListItem.Subtitle style={{ color: theme.colors?.text }}>
                 {randomActiveElem?.author?.name}
                 {randomActiveElem?.genre?.name && `  -  ${randomActiveElem.genre.name}`}
@@ -173,13 +180,12 @@ export default function ListScreen({ route }: Props) {
       </Overlay >
       <Overlay
         isVisible={filtersOpen}
-        style={{ backgroundColor: theme.colors?.background, margin: 0, padding: 0 }}
+        overlayStyle={{ borderWidth: 2, margin: 0, padding: 0, borderColor: theme.colors?.border, width: "90%", height: "90%" }}
       >
         <View
           style={{
-            minWidth: 300, flex: 1,
+            flex: 1, margin: 0,
             backgroundColor: theme.colors?.background,
-            borderColor: theme.colors?.border, borderWidth: 1,
             padding: 10
           }}
         >
@@ -211,7 +217,7 @@ export default function ListScreen({ route }: Props) {
           <Button onPress={() => resetFilters()} style={{ marginBottom: 30 }}>{t("reset")}</Button>
           <Button onPress={() => setFiltersOpen(false)} disabled={!applyYearFilter ? false : yearMin > yearMax}>{t("apply")}</Button>
         </View>
-      </Overlay>
+      </Overlay >
     </View >
   );
 }

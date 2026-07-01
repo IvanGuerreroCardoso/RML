@@ -31,6 +31,7 @@ const languageDetector: DetectorModule = {
 
     if (appSettings?.language) {
       callback(appSettings.language);
+      return;
     }
 
     LocaleModule.getLocale().then((locale: string) => {

@@ -14,9 +14,6 @@ interface RatableListProps {
 }
 
 const styles = StyleSheet.create({
-  modalView: {
-    minWidth: 200
-  },
   rateText: {
     alignSelf: "center",
     marginBottom: 10
@@ -62,6 +59,7 @@ export default function RateableItem(props: RatableListProps) {
   return (
     <>
       <ListItem.Swipeable
+        bottomDivider
         leftWidth={60}
         leftContent={(reset) => (
           <Button
@@ -69,7 +67,7 @@ export default function RateableItem(props: RatableListProps) {
               markChecked();
               reset();
             }}
-            icon={<Feather name="eye" size={20} color="#222" />}
+            icon={<Feather name={props.item.checked ? "eye-off" : "eye"} size={20} color={theme.colors?.text} />}
             buttonStyle={{ minHeight: '100%' }}
           />
         )}
@@ -80,8 +78,8 @@ export default function RateableItem(props: RatableListProps) {
               deleteItem();
               reset();
             }}
-            icon={<Feather name="trash" size={20} color="#222" />}
-            buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
+            icon={<Feather name="trash" size={20} color={theme.colors?.text} />}
+            buttonStyle={{ minHeight: '100%', backgroundColor: theme.colors?.error }}
           />
         )}
         minSlideWidth={60}
@@ -107,29 +105,30 @@ export default function RateableItem(props: RatableListProps) {
       <Overlay
         isVisible={rateVisible}
         onBackdropPress={() => setRateVisible(false)}
+        overlayStyle={{ width: "70%", height: 160, borderWidth: 1, borderColor: theme.colors?.border, padding: 0 }}
       >
-        <View style={styles.modalView}>
+        <View style={{ flex: 1, backgroundColor: theme.colors?.background, padding: 20 }}>
           <Slider
             value={rate}
             onValueChange={ratingCompleted}
             maximumValue={10}
             minimumValue={0}
+            minimumTrackTintColor="#CC95B3"
             step={1}
             allowTouchTrack
-            trackStyle={{ height: 7, backgroundColor: 'transparent' }}
-            thumbStyle={{ height: 30, width: 30, backgroundColor: 'transparent' }}
+            trackStyle={{ height: 10 }}
+            thumbStyle={{ height: 30, width: 30, backgroundColor: "pink" }}
             thumbProps={{
               children: (
                 <Feather
                   name="heart"
                   size={30}
                   color="#ee5997"
-                />
-              ),
+                />),
             }}
           />
           <Text style={styles.rateText}>{rate} / 10</Text>
-          <Button onPress={() => rateAndSave()} disabled={!rateChanged} >Ok</Button>
+          <Button buttonStyle={{ height: 40 }} onPress={() => rateAndSave()} disabled={!rateChanged} >Ok</Button>
         </View>
       </Overlay>
     </>
