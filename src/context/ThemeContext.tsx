@@ -21,7 +21,8 @@ const LightPalette = {
   notification: '#ff80ab',
   error: "#d91909",
   primCard: "#d1bbf0",
-  white: "#ededed"
+  white: "#ededed",
+  blue: "#26a6fc"
 } as const;
 
 const DarkPalette = {
@@ -34,7 +35,8 @@ const DarkPalette = {
   notification: '#ff80ab',
   error: "#ff5d1a",
   primCard: "#9984b3",
-  white: "#ededed"
+  white: "#ededed",
+  blue: "#4486b3"
 } as const;
 
 const DefaultFonts: Record<string, any> = {

@@ -60,16 +60,26 @@ export default function RateableItem(props: RatableListProps) {
     <>
       <ListItem.Swipeable
         bottomDivider
-        leftWidth={60}
+        leftWidth={120}
         leftContent={(reset) => (
-          <Button
-            onPress={() => {
-              markChecked();
-              reset();
-            }}
-            icon={<Feather name={props.item.checked ? "eye-off" : "eye"} size={20} color={theme.colors?.white} />}
-            buttonStyle={{ minHeight: '100%' }}
-          />
+          <View style={{ flex: 1, flexDirection: "row" }}>
+            <Button
+              onPress={() => {
+                navigation.navigate("AddItem", { listId: props.item.listId, itemId: props.item.itemId });
+                reset();
+              }}
+              icon={<Feather name="edit" size={20} color={theme.colors?.white} />}
+              buttonStyle={{ minHeight: '100%', width: 60, backgroundColor: theme.colors?.blue }}
+            />
+            <Button
+              onPress={() => {
+                markChecked();
+                reset();
+              }}
+              icon={<Feather name={props.item.checked ? "eye-off" : "eye"} size={20} color={theme.colors?.white} />}
+              buttonStyle={{ minHeight: '100%', width: 60 }}
+            />
+          </View>
         )}
         rightWidth={60}
         rightContent={(reset) => (
@@ -83,7 +93,6 @@ export default function RateableItem(props: RatableListProps) {
           />
         )}
         minSlideWidth={60}
-        onPress={() => navigation.navigate("AddItem", { listId: props.item.listId, itemId: props.item.itemId })}
       >
         <ListItem.Content>
 
@@ -100,7 +109,6 @@ export default function RateableItem(props: RatableListProps) {
             {props.item.rate ? `  -  ${props.item.rate}/10` : ""}
           </ListItem.Subtitle>
         </ListItem.Content>
-        <Feather name="chevron-right" size={20} color={theme.colors?.text} />
       </ListItem.Swipeable>
       <Overlay
         isVisible={rateVisible}
@@ -128,7 +136,7 @@ export default function RateableItem(props: RatableListProps) {
             }}
           />
           <Text style={styles.rateText}>{rate} / 10</Text>
-          <Button buttonStyle={{ height: 40 }} onPress={() => rateAndSave()} disabled={!rateChanged} >Ok</Button>
+          <Button buttonStyle={{ height: 40, borderRadius: 10 }} onPress={() => rateAndSave()} disabled={!rateChanged} >Ok</Button>
         </View>
       </Overlay>
     </>

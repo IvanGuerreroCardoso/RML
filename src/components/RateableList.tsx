@@ -15,14 +15,6 @@ export default function RateableList(props: RatableListProps) {
   const navigation = useNavigation();
   const { listId } = props.list;
 
-  function deleteMyList() {
-    deleteList(listId).then(() => props.updateList());
-  };
-
-  function openList() {
-    navigation.navigate("List", { listId, name: props.list.name })
-  }
-
   return (
     <ListItem.Swipeable
       bottomDivider
@@ -32,14 +24,24 @@ export default function RateableList(props: RatableListProps) {
       rightContent={(reset) => (
         <Button
           onPress={() => {
-            deleteMyList();
+            deleteList(listId).then(() => props.updateList());
             reset();
           }}
           icon={<Feather name="trash" size={20} color={theme.colors?.white} />}
           buttonStyle={{ minHeight: '100%', backgroundColor: theme.colors?.error }}
         />
       )}
-      onPress={() => openList()}>
+      leftContent={(reset) => (
+        <Button
+          onPress={() => {
+            navigation.navigate("AddList", { listId });
+            reset();
+          }}
+          icon={<Feather name="edit" size={20} color={theme.colors?.white} />}
+          buttonStyle={{ minHeight: '100%', backgroundColor: theme.colors?.blue }}
+        />
+      )}
+      onPress={() => navigation.navigate("List", { listId, name: props.list.name })}>
       <ListItem.Content>
         <ListItem.Title style={{ color: theme.colors?.text }}>
           {props.list.checked &&
