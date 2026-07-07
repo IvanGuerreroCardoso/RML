@@ -40,6 +40,7 @@ export default function ListScreen({ route }: Props) {
   const [yearMin, setYearMin] = useState("0");
   const [yearMax, setYearMax] = useState("3000");
   const [applyYearFilter, setApplyYearFilter] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -74,7 +75,7 @@ export default function ListScreen({ route }: Props) {
   function updateList() {
     getListItems(listId).then((res) => {
       setListItems(res);
-      updateListCheck(listId, !res.some(i => !i.checked));
+      if (res.length > 0) updateListCheck(listId, !res.some(i => !i.checked));
     });
   }
 
@@ -107,7 +108,7 @@ export default function ListScreen({ route }: Props) {
   return (
     <View style={styles.container}>
       {listItems.length === 0 &&
-        <Text>{t("noItemsInList")}</Text>
+        <Text style={{ marginHorizontal: 15, marginTop: 10 }}>{t("noItemsInList")}</Text>
       }
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <View style={{ flex: 1 }}>
@@ -140,17 +141,43 @@ export default function ListScreen({ route }: Props) {
       />
 
       {shownList.length > 0 &&
-        <FAB
-          color={theme.colors?.primary}
-          placement="right"
-          size="small"
-          icon={<Feather name="box" color={theme.colors?.card} size={20} />}
-          onPress={() => pickRand()}
-          titleStyle={{ color: theme.colors?.card }}
-          title={t("randChoise")}
-          containerStyle={{ marginBottom: 15 }}
-        />
+        <>
+          <FAB
+            color={theme.colors?.primary}
+            placement="right"
+            size="small"
+            icon={<Feather name="box" color={theme.colors?.card} size={20} />}
+            onPress={() => pickRand()}
+            titleStyle={{ color: theme.colors?.card }}
+            title={t("randChoise")}
+            containerStyle={{ marginBottom: 15 }}
+          />
+
+          <FAB
+            color={theme.colors?.primary}
+            placement="left"
+            size="small"
+            icon={<Feather name="help-circle" color={theme.colors?.card} size={20} />}
+            onPress={() => setHelpOpen(true)}
+            titleStyle={{ color: theme.colors?.card }}
+            containerStyle={{ marginBottom: 15 }}
+          />
+        </>
       }
+      <Overlay
+        isVisible={helpOpen}
+        onBackdropPress={() => setHelpOpen(false)}
+        overlayStyle={{ borderWidth: 2, padding: 0, borderColor: theme.colors?.border, width: "80%", height: 300 }}
+      >
+        <View style={{ padding: 15, backgroundColor: theme.colors?.background, flex: 1 }}>
+          <Text>{t("editHelpTitle")}</Text>
+          <Text style={{ marginTop: 5, marginBottom: 15 }}>{t("editHelpText")}</Text>
+          <Text>{t("deleteHelpTitle")}</Text>
+          <Text style={{ marginTop: 5, marginBottom: 15 }}>{t("deleteHelpText")}</Text>
+          <Text>{t("rateHelpTitle")}</Text>
+          <Text style={{ marginTop: 5, marginBottom: 15 }}>{t("rateHelpText")}</Text>
+        </View>
+      </Overlay>
       <Overlay
         isVisible={randElemPickOpen}
         onBackdropPress={() => setRandElemPickOpen(false)}
