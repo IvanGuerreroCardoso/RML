@@ -115,7 +115,7 @@ export default function ListScreen({ route }: Props) {
           <Button
             title={t("addItem")}
             onPress={() => navigation.navigate("AddItem", { listId, itemId: null })}
-            buttonStyle={{ margin: 10, height: 40 }}
+            buttonStyle={{ margin: 10, height: 40, borderRadius: 10 }}
           />
         </View>
         <Feather
@@ -146,9 +146,9 @@ export default function ListScreen({ route }: Props) {
             color={theme.colors?.primary}
             placement="right"
             size="small"
-            icon={<Feather name="box" color={theme.colors?.card} size={20} />}
+            icon={<Feather name="box" color={theme.colors?.white} size={20} />}
             onPress={() => pickRand()}
-            titleStyle={{ color: theme.colors?.card }}
+            titleStyle={{ color: theme.colors?.white }}
             title={t("randChoise")}
             containerStyle={{ marginBottom: 15 }}
           />
@@ -157,9 +157,9 @@ export default function ListScreen({ route }: Props) {
             color={theme.colors?.primary}
             placement="left"
             size="small"
-            icon={<Feather name="help-circle" color={theme.colors?.card} size={20} />}
+            icon={<Feather name="help-circle" color={theme.colors?.white} size={20} />}
             onPress={() => setHelpOpen(true)}
-            titleStyle={{ color: theme.colors?.card }}
+            titleStyle={{ color: theme.colors?.white }}
             containerStyle={{ marginBottom: 15 }}
           />
         </>
@@ -241,8 +241,15 @@ export default function ListScreen({ route }: Props) {
           {yearMin > yearMax &&
             <Text style={{ color: theme.colors?.error, marginBottom: 20 }}>{t("invalidRange")}</Text>
           }
-          <Button onPress={() => resetFilters()} style={{ marginBottom: 30 }}>{t("reset")}</Button>
-          <Button onPress={() => setFiltersOpen(false)} disabled={!applyYearFilter ? false : yearMin > yearMax}>{t("apply")}</Button>
+          <Button
+            onPress={() => resetFilters()}
+            buttonStyle={{ width: "auto", height: 40, marginBottom: 30, borderRadius: 10 }}
+          >{t("reset")}</Button>
+          <Button
+            onPress={() => setFiltersOpen(false)}
+            buttonStyle={{ width: "auto", height: 40, borderRadius: 10 }}
+            disabled={!applyYearFilter ? false : yearMin > yearMax}
+          >{t("apply")}</Button>
         </View>
       </Overlay >
     </View >

@@ -58,11 +58,11 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {lists.length === 0 && <Text style={{ marginHorizontal: 15, marginTop: 10 }}>{t("noListsMsg")}</Text>}
+      {lists.length === 0 && <Text style={{ marginHorizontal: 15, marginTop: 10, borderRadius: 10 }}>{t("noListsMsg")}</Text>}
       <Button
         title={t("addList")}
         onPress={() => navigation.navigate("AddList", { listId: null })}
-        buttonStyle={{ margin: 10, height: 40, width: "auto" }}
+        buttonStyle={{ margin: 10, height: 40, width: "auto", borderRadius: 10 }}
       />
       <SearchBar
         placeholder={t("searchByName")}

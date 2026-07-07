@@ -44,11 +44,6 @@ export default function AddListScreen({ route }: Props) {
     updateList({ name: name, listId: listToEdit.listId, checked: listToEdit.checked }).then(() => navigation.goBack());
   }
 
-  function listNameChanged(txt: string) {
-    setName(txt);
-    setBtnDisabled(name === "");
-  }
-
   return (
     <View style={styles.container}>
       <Input
@@ -60,7 +55,7 @@ export default function AddListScreen({ route }: Props) {
       <Button
         title={listId ? t("edit") : t("add")}
         onPress={() => createList()}
-        buttonStyle={{ marginHorizontal: 10, height: 40 }}
+        buttonStyle={{ marginHorizontal: 10, height: 40, borderRadius: 10 }}
         disabled={name === ""}
       />
     </View>

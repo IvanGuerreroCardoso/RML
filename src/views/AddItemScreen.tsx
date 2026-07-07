@@ -190,7 +190,7 @@ export default function AddItemScreen({ route }: Props) {
       <Button
         title={itemId ? t("edit") : t("add")}
         onPress={() => createItem()}
-        buttonStyle={{ marginHorizontal: 10, height: 40 }}
+        buttonStyle={{ marginHorizontal: 10, height: 40, borderRadius: 10 }}
         disabled={btnDisabled}
       />
     </View>
