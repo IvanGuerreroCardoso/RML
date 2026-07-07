@@ -23,6 +23,9 @@ const createSettingsTable = async () => {
 const getSettings = async (): Promise<AppSettings | null> => {
   let db = await getDatabase();
 
+  await db.executeSql(
+    "CREATE TABLE IF NOT EXISTS Settings (id INTEGER PRIMARY KEY NOT NULL, theme TEXT, language TEXT);"
+  );
   let res = await db.executeSql("SELECT id, theme, language FROM Settings WHERE id = 1");
 
   if (res[0].rows.length > 0) {
