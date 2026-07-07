@@ -20,8 +20,8 @@ const LightPalette = {
   border: '#888',
   notification: '#ff80ab',
   error: "#d91909",
-  primCard: "#d1bbf0"
-
+  primCard: "#d1bbf0",
+  white: "#ededed"
 } as const;
 
 const DarkPalette = {
@@ -33,7 +33,8 @@ const DarkPalette = {
   border: '#272727',
   notification: '#ff80ab',
   error: "#ff5d1a",
-  primCard: "#9984b3"
+  primCard: "#9984b3",
+  white: "#ededed"
 } as const;
 
 const DefaultFonts: Record<string, any> = {

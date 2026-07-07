@@ -35,7 +35,7 @@ export default function RateableList(props: RatableListProps) {
             deleteMyList();
             reset();
           }}
-          icon={<Feather name="trash" size={20} color={theme.colors?.text} />}
+          icon={<Feather name="trash" size={20} color={theme.colors?.white} />}
           buttonStyle={{ minHeight: '100%', backgroundColor: theme.colors?.error }}
         />
       )}

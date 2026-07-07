@@ -67,7 +67,7 @@ export default function RateableItem(props: RatableListProps) {
               markChecked();
               reset();
             }}
-            icon={<Feather name={props.item.checked ? "eye-off" : "eye"} size={20} color={theme.colors?.text} />}
+            icon={<Feather name={props.item.checked ? "eye-off" : "eye"} size={20} color={theme.colors?.white} />}
             buttonStyle={{ minHeight: '100%' }}
           />
         )}
@@ -78,7 +78,7 @@ export default function RateableItem(props: RatableListProps) {
               deleteItem();
               reset();
             }}
-            icon={<Feather name="trash" size={20} color={theme.colors?.text} />}
+            icon={<Feather name="trash" size={20} color={theme.colors?.white} />}
             buttonStyle={{ minHeight: '100%', backgroundColor: theme.colors?.error }}
           />
         )}
