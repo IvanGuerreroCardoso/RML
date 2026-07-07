@@ -32,7 +32,7 @@
   "editHelpTitle": "Cómo editar:",
   "deleteHelpTitle": "Cómo eliminar:",
   "rateHelpTitle": "Cómo calificar o marcar como no visto:",
-  "editHelpText": "Toca el elemento que quieras editar para abrir la pantalla de edición.",
+  "editHelpText": "Desliza de izquierda a derecha el elemento que quieras editar para ver el botón de edición.",
   "deleteHelpText": "Desliza de derecha a izquierda el elemento que quieras eliminar para mostrar el botón de eliminar.",
-  "rateHelpText": "Desliza de izquierda a derecha el elemento que queiras calificar o marcar como no leído ver el botón correspondiente."
+  "rateHelpText": "Desliza de izquierda a derecha el elemento que quieras calificar o marcar como no leído ver el botón correspondiente."
 }
