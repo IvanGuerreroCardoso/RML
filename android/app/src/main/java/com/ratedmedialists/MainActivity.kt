@@ -1,4 +1,4 @@
-package com.ratedmedialistsn
+package com.ratedmedialists
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

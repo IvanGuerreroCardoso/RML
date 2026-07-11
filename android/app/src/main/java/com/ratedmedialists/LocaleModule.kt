@@ -1,4 +1,4 @@
-package com.ratedmedialistsn
+package com.ratedmedialists
 
 import android.os.Build
 import android.os.LocaleList
