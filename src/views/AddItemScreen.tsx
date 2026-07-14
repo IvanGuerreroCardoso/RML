@@ -65,21 +65,21 @@ export default function AddItemScreen({ route }: Props) {
     let existentGenreId: number | null = null;
 
     if (authorMatches.length > 0) {
-      let existentAuthor = authorMatches.find(a => a.name === author);
+      let existentAuthor = authorMatches.find(a => a.name.trim() === author.trim());
       existentAuthorId = existentAuthor?.id ?? null;
     }
 
     if (genreMatches.length > 0) {
-      let existentGenre = genreMatches.find(a => a.name === genre);
+      let existentGenre = genreMatches.find(a => a.name.trim() === genre.trim());
       existentGenreId = existentGenre?.id ?? null;
     }
 
     if (author && !existentAuthorId && authorId === 0) {
-      authorIdTask = insertAuthor(author);
+      authorIdTask = insertAuthor(author.trim());
     }
 
     if (genre && !existentGenreId && genreId === 0) {
-      genreIdTask = insertGenre(genre);
+      genreIdTask = insertGenre(genre.trim());
     }
 
     let authorIdToSave = authorIdTask ? await authorIdTask : authorId !== 0 ? authorId : existentAuthorId;
@@ -87,10 +87,10 @@ export default function AddItemScreen({ route }: Props) {
 
     let itemToSave = {
       itemId: itemId ?? 0,
-      name,
+      name: name.trim(),
       checked,
-      author: authorIdToSave ? { id: authorIdToSave, name: author } : undefined,
-      genre: genreIdToSave ? { id: genreIdToSave, name: genre } : undefined,
+      author: authorIdToSave ? { id: authorIdToSave, name: author.trim() } : undefined,
+      genre: genreIdToSave ? { id: genreIdToSave, name: genre.trim() } : undefined,
       listId,
       year: year ? new Date(parseInt(year), 0, 1) : null, // parse to Date as 01/01/yy
       rate
@@ -112,7 +112,7 @@ export default function AddItemScreen({ route }: Props) {
 
   useEffect(() => {
     if (!originalItem) {
-      setBtnDisabled(name === "" || author === "");
+      setBtnDisabled(name.trim() === "" || author.trim() === "");
       return;
     }
 
@@ -158,6 +158,10 @@ export default function AddItemScreen({ route }: Props) {
     setGenreMatches([]);
   }
 
+  const yearChanged = (yr: string) => { if (has0to4digits(yr)) { setYear(yr) } };
+
+  function has0to4digits(str: string) { return /^\d{0,4}$/gm.test(str) }
+
   function getMatchesFlatList(list: Author[] | Genre[], itemSelected: (item: Author | Genre) => void) {
     return (
       <FlatList
@@ -186,7 +190,7 @@ export default function AddItemScreen({ route }: Props) {
       {genreMatches.length > 0 &&
         getMatchesFlatList(genreMatches, genreSelected)
       }
-      <Input placeholder={t("year")} placeholderTextColor={theme.colors?.mutedText} value={year} onChangeText={setYear} keyboardType="numeric" />
+      <Input placeholder={t("year")} placeholderTextColor={theme.colors?.mutedText} value={year} onChangeText={yearChanged} keyboardType="numeric" />
       <Button
         title={itemId ? t("edit") : t("add")}
         onPress={() => createItem()}
