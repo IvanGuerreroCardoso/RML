@@ -136,6 +136,7 @@ export default function ListScreen({ route }: Props) {
         />}
       />
       <FlatList
+        style={{ marginBottom: 70 }}
         data={shownList}
         renderItem={({ item }) => <RateableItem item={item} updateList={updateList} />}
       />
@@ -150,7 +151,7 @@ export default function ListScreen({ route }: Props) {
             onPress={() => pickRand()}
             titleStyle={{ color: theme.colors?.white }}
             title={t("randChoise")}
-            containerStyle={{ marginBottom: 15 }}
+            containerStyle={{ marginBottom: 5 }}
           />
 
           <FAB
@@ -160,7 +161,7 @@ export default function ListScreen({ route }: Props) {
             icon={<Feather name="help-circle" color={theme.colors?.white} size={20} />}
             onPress={() => setHelpOpen(true)}
             titleStyle={{ color: theme.colors?.white }}
-            containerStyle={{ marginBottom: 15 }}
+            containerStyle={{ marginBottom: 5 }}
           />
         </>
       }
