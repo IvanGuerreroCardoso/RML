@@ -50,7 +50,7 @@ export default function AddItemScreen({ route }: Props) {
         setAuthorId(item.author?.id || 0);
         setGenre(item.genre?.name || "");
         setGenreId(item.genre?.id || 0);
-        setYear(item.year ? new Date(item.year).getFullYear().toString() : "");
+        setYear(item.year instanceof Date && !isNaN(item.year.getTime()) ? item.year.getFullYear().toString() : "");
         setName(item.name);
         setChecked(item.checked);
         setRate(item.rate);
