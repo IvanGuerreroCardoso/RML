@@ -14,11 +14,14 @@ import { ThemeProvider as RNEThemeProvider, useTheme } from '@rneui/themed';
 import { RootStackParamList } from './src/models/models';
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 import { createSettingsTable } from './src/services/settingsDbService';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootStack() {
   const { t } = useTranslation();
+  const nav = useNavigation();
+  const { theme } = useTheme();
 
   return (
     <Stack.Navigator>
@@ -28,8 +31,6 @@ function RootStack() {
         options={{
           title: t("yourLists"),
           headerRight: () => {
-            const nav = useNavigation();
-            const { theme } = useTheme();
             return <Feather onPress={() => nav.navigate("Settings")} name="settings" size={20} color={theme.colors.primary} />
           }
         }}
@@ -74,11 +75,13 @@ const Navigation = () => {
   const { theme } = useAppTheme();
 
   return (
+    <SafeAreaProvider>
     <NavigationContainer theme={theme as any}>
       <RNEThemeProvider theme={theme}>
         <RootStack />
       </RNEThemeProvider>
     </NavigationContainer>
+    </SafeAreaProvider>
   );
 };
 
