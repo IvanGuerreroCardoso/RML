@@ -34,5 +34,12 @@
   "rateHelpTitle": "How to rate or mark unseen:",
   "editHelpText": "To edit, swipe from left to right to see the edit button.",
   "deleteHelpText": "To delete, swipe from right to left to see the delete button.",
-  "rateHelpText": "To rate, swipe from left to right to see the rate/mark seen button"
+  "rateHelpText": "To rate, swipe from left to right to see the rate/mark seen button",
+  "rate": "Rate",
+  "ratedDate": "Rate date",
+  "ascending": "Ascending",
+  "descending": "Descending",
+  "default": "Default",
+  "orderBy": "Order by",
+  "direction": "Direction"
 }

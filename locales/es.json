@@ -34,5 +34,12 @@
   "rateHelpTitle": "Cómo calificar o marcar como no visto:",
   "editHelpText": "Desliza de izquierda a derecha el elemento que quieras editar para ver el botón de edición.",
   "deleteHelpText": "Desliza de derecha a izquierda el elemento que quieras eliminar para mostrar el botón de eliminar.",
-  "rateHelpText": "Desliza de izquierda a derecha el elemento que quieras calificar o marcar como no leído ver el botón correspondiente."
+  "rateHelpText": "Desliza de izquierda a derecha el elemento que quieras calificar o marcar como no leído ver el botón correspondiente.",
+  "rate": "Calificación",
+  "ratedDate": "Fecha de calificación",
+  "ascending": "Ascendente",
+  "descending": "Descendente",
+  "default": "Por defecto",
+  "orderBy": "Ordenar por",
+  "direction": "Dirección"
 }
