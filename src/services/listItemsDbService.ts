@@ -20,22 +20,38 @@ const createItemsTable = async () => {
   let enableForeignKeysTask = db.executeSql("PRAGMA foreign_keys = ON;");
   let itemsTableTask = db.executeSql(`
 CREATE TABLE IF NOT EXISTS Items 
-(itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year DATE, checked BOOLEAN, rate INTEGER,
-authorId INT, genreId INT)`
+(itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year TEXT, checked BOOLEAN, rate INTEGER,
+authorId INTEGER, genreId INTEGER, rateDate TEXT, createdAt TEXT)`
   );
 
   await genreTableTask;
   await authTableTask;
   await enableForeignKeysTask;
   await itemsTableTask;
+
+  const result = await db.executeSql(
+    `
+       SELECT 1
+       FROM pragma_table_info('Items')
+       WHERE name = 'rateDate'
+       LIMIT 1;
+       `
+  );
+
+  if (result[0].rows.length === 0) {
+    await db.executeSql(`ALTER TABLE Items ADD COLUMN rateDate TEXT;`);
+    await db.executeSql(`ALTER TABLE Items ADD COLUMN createdAt TEXT;`);
+  }
 };
 
 const insertListItem = async (item: ListItem): Promise<number> => {
   let db = await getDatabase();
 
   return (await db.executeSql(
-    'INSERT INTO Items (name, listId, year, checked, rate, authorId, genreId) values (?,?,?,?,0,?,?)',
-    [item.name, item.listId, item.year?.toString(), item.checked, item.author?.id ?? null, item.genre?.id ?? null]
+    'INSERT INTO Items (name, listId, year, checked, rate, authorId, genreId, rateDate, createdAt) values (?,?,?,?,?,?,?,?,?)',
+    [item.name, item.listId, item.year ? item.year.toISOString() : null,
+    item.checked, item.rate, item.author?.id ?? null, item.genre?.id ?? null,
+    item.rateDate === null ? null : item.rateDate?.toISOString(), new Date().toISOString()]
   ))[0].insertId;
 };
 
@@ -76,7 +92,7 @@ const getListItems = async (listId: number): Promise<ListItem[]> => {
 
   let res = await db.executeSql(
     `SELECT i.itemId, i.listId, i.name, i.checked, i.year, i.rate,
-      i.authorId, a.name as authorName, i.genreId, g.name as genreName
+      i.authorId, a.name as authorName, i.genreId, g.name as genreName, i.rateDate
     FROM Items i
     LEFT JOIN Authors a on a.rowid = i.authorId
     LEFT JOIN Genres g on g.rowid = i.genreId
@@ -91,8 +107,9 @@ const updateListItem = async (item: ListItem): Promise<number> => {
   let db = await getDatabase();
 
   return (await db.executeSql(
-    'UPDATE Items SET name = ?, checked = ?, year = ?, rate = ?, authorId = ?, genreId = ? WHERE itemId = ?',
-    [item.name, item.checked, item.year?.toString(), item.rate, item.author!.id!, item.genre?.id ?? null, item.itemId]
+    'UPDATE Items SET name = ?, checked = ?, year = ?, rate = ?, authorId = ?, genreId = ?, rateDate = ? WHERE itemId = ?',
+    [item.name, item.checked, item.year === null ? null : item.year.toISOString(),
+    item.rate, item.author!.id!, item.genre?.id ?? null, item.rateDate === null ? null : item.rateDate?.toISOString(), item.itemId]
   ))[0].rowsAffected;
 };
 
@@ -130,7 +147,7 @@ const getItemById = async (itemId: number): Promise<ListItem> => {
 
   let res = await db.executeSql(
     `SELECT i.itemId, i.listId, i.name, i.checked, i.year, i.rate,
-      i.authorId, a.name as authorName, i.genreId, g.name as genreName
+      i.authorId, a.name as authorName, i.genreId, g.name as genreName, i.rateDate
     FROM Items i
     LEFT JOIN Authors a on a.rowid = i.authorId
     LEFT JOIN Genres g on g.rowid = i.genreId
@@ -147,11 +164,32 @@ const mapToItem = (raw: any): ListItem => {
     name: raw.name, checked: !!raw.checked,
     year: raw.year === null ? null : new Date(raw.year), rate: raw.rate,
     author: { id: raw.authorId, name: raw.authorName },
-    genre: { id: raw.genreId, name: raw.genreName }
+    genre: { id: raw.genreId, name: raw.genreName },
+    rateDate: raw.rateDate === null ? null : new Date(raw.rateDate)
   }
+}
+
+async function getItemsCount() {
+  let db = await getDatabase();
+
+  const result = await db.executeSql(`
+  SELECT name
+  FROM sqlite_master
+  WHERE type = 'table' AND name = 'Items';
+`);
+
+  const created = result[0].rows.length > 0;
+
+  if (!created) return null;
+
+  let res = await db.executeSql(
+    `SELECT * FROM Items`,
+  );
+
+  return (res[0].rows.length);
 }
 
 export {
   insertListItem, getListItems, updateListItem, deleteListItem, getItemById,
-  createItemsTable, insertAuthor, insertGenre, matchAuthor, matchGenre
+  createItemsTable, insertAuthor, insertGenre, matchAuthor, matchGenre, getItemsCount
 };

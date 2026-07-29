@@ -1,5 +1,5 @@
-import { View, StyleSheet, FlatList } from "react-native"
-import { Button, Input, ListItem } from "@rneui/themed"
+import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from "react-native"
+import { Button, Input, ListItem, Slider, Text } from "@rneui/themed"
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { getItemById, insertAuthor, insertGenre, insertListItem, matchAuthor, matchGenre, updateListItem } from "../services/listItemsDbService";
@@ -8,11 +8,9 @@ import { t } from "i18next";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { updateListCheck } from "../services/listsDbService";
 import { useAppTheme } from "../context/ThemeContext";
+import Feather from "@react-native-vector-icons/feather";
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   flatList: {
     backgroundColor: 'red',
     maxHeight: 130,
@@ -34,12 +32,15 @@ export default function AddItemScreen({ route }: Props) {
   const [genre, setGenre] = useState<string>("");
   const [genreId, setGenreId] = useState<number>(0);
   const [year, setYear] = useState<string>("");
+  const [rateDate, setRateDate] = useState<string>("");
   const [authorMatches, setAuthorMatches] = useState<Author[]>([]);
   const [genreMatches, setGenreMatches] = useState<Genre[]>([]);
   const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
   const [checked, setChecked] = useState<boolean>(false);
   const [rate, setRate] = useState<number | null>(null);
   const [originalItem, setOriginalItem] = useState<Item | null>(null);
+  const [yearValid, setYearValid] = useState(true);
+  const [rateDateValid, setRateDateValid] = useState(true);
 
   useEffect(() => {
     if (itemId) {
@@ -54,6 +55,7 @@ export default function AddItemScreen({ route }: Props) {
         setName(item.name);
         setChecked(item.checked);
         setRate(item.rate);
+        setRateDate(item.rateDate !== null ? `${item.rateDate.getMonth() < 9 ? '0' : ''}${item.rateDate.getMonth() + 1}/${item.rateDate.getFullYear()}` : "");
       })
     }
   }, [])
@@ -93,7 +95,8 @@ export default function AddItemScreen({ route }: Props) {
       genre: genreIdToSave ? { id: genreIdToSave, name: genre.trim() } : undefined,
       listId,
       year: year ? new Date(parseInt(year), 0, 1) : null, // parse to Date as 01/01/yy
-      rate
+      rate,
+      rateDate: dateFromString(rateDate)
     }
 
     if (itemId) {
@@ -110,19 +113,32 @@ export default function AddItemScreen({ route }: Props) {
     navigation.goBack();
   };
 
+  function dateFromString(str: string) {
+    if (str === null || str === "") {
+      return null;
+    }
+
+    const splitStr = str.split('/');
+
+    return new Date(parseInt(splitStr[1]), parseInt(splitStr[0]) - 1, 1);
+  }
+
   useEffect(() => {
     if (!originalItem) {
-      setBtnDisabled(name.trim() === "" || author.trim() === "");
+      setBtnDisabled(name.trim() === "" || author.trim() === "" || !rateDateValid || !yearValid);
       return;
     }
 
     setBtnDisabled(
-      name === originalItem.name &&
-      author === originalItem.author?.name &&
-      year === (originalItem.year?.getFullYear().toString() ?? "") &&
-      genre === originalItem.genre?.name
-    )
-  }, [name, author, authorMatches, genreMatches, year, genre, originalItem])
+      (name.trim() === "" || author.trim() === "" || !rateDateValid || !yearValid) ||
+      (name === originalItem.name &&
+        author === originalItem.author?.name &&
+        year === (originalItem.year?.getFullYear().toString() ?? "") &&
+        genre === originalItem.genre?.name &&
+        rate === originalItem.rate &&
+        rateDate === (originalItem.rateDate !== null ? `${originalItem.rateDate.getMonth()}/${originalItem.rateDate.getFullYear()}` : ""))
+    );
+  }, [name, author, authorMatches, genreMatches, year, genre, originalItem, rateDate])
 
   function authorChanged(txt: string) {
     setAuthor(txt);
@@ -158,7 +174,24 @@ export default function AddItemScreen({ route }: Props) {
     setGenreMatches([]);
   }
 
-  const yearChanged = (yr: string) => { if (has0to4digits(yr)) { setYear(yr) } };
+  function rateDateChanged(rd: string) {
+    if (/^\d{0,2}\/?\d{0,4}$/gm.test(rd)) {
+      if (rd.length > 2 && !rd.includes('/') && rd.length > rateDate.length) {
+        rd = rd.substring(0, 2) + '/' + rd.substring(2);
+      }
+      setRateDate(rd);
+      if (rd.length > 2) {
+        setRateDateValid(/^\d{2}\/\d{4}$/gm.test(rd) && parseInt(rd.substring(0, 2)) <= 12);
+      }
+    }
+  }
+
+  const yearChanged = (yr: string) => {
+    if (has0to4digits(yr)) {
+      setYear(yr);
+      setYearValid(yr === "" || yr.length === 4);
+    }
+  };
 
   function has0to4digits(str: string) { return /^\d{0,4}$/gm.test(str) }
 
@@ -180,23 +213,81 @@ export default function AddItemScreen({ route }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <Input placeholder={t("name")} placeholderTextColor={theme.colors?.mutedText} value={name} onChangeText={setName} />
-      <Input placeholder={t("author")} placeholderTextColor={theme.colors?.mutedText} value={author} onChangeText={authorChanged} />
-      {authorMatches.length > 0 &&
-        getMatchesFlatList(authorMatches, authorSelected)
-      }
-      <Input placeholder={t("genre")} placeholderTextColor={theme.colors?.mutedText} value={genre} onChangeText={genreChanged} />
-      {genreMatches.length > 0 &&
-        getMatchesFlatList(genreMatches, genreSelected)
-      }
-      <Input placeholder={t("year")} placeholderTextColor={theme.colors?.mutedText} value={year} onChangeText={yearChanged} keyboardType="numeric" />
-      <Button
-        title={itemId ? t("edit") : t("add")}
-        onPress={() => createItem()}
-        buttonStyle={{ marginHorizontal: 10, height: 40, borderRadius: 10 }}
-        disabled={btnDisabled}
-      />
-    </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "position"}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          <Input label={t("name")} labelStyle={{ color: theme.colors?.text }}
+            placeholder={t("name")} placeholderTextColor={theme.colors?.mutedText}
+            value={name} onChangeText={setName} />
+          <Input label={t("author")} labelStyle={{ color: theme.colors?.text }}
+            placeholder={t("author")} placeholderTextColor={theme.colors?.mutedText}
+            value={author} onChangeText={authorChanged} />
+          {authorMatches.length > 0 &&
+            getMatchesFlatList(authorMatches, authorSelected)
+          }
+          <Input label={t("genre")} labelStyle={{ color: theme.colors?.text }}
+            placeholder={t("genre")} placeholderTextColor={theme.colors?.mutedText}
+            value={genre} onChangeText={genreChanged} />
+          {genreMatches.length > 0 &&
+            getMatchesFlatList(genreMatches, genreSelected)
+          }
+          <Input label={t("year")} labelStyle={{ color: theme.colors?.text }}
+            placeholder={t("year")} placeholderTextColor={theme.colors?.mutedText}
+            value={year} onChangeText={yearChanged} keyboardType="numeric" />
+          {!yearValid && <Text style={{ color: theme.colors?.error, marginBottom: 15, marginLeft: 20 }}>{t("invalidDate")}</Text>}
+          <Text
+            style={{ marginHorizontal: 10, fontSize: 15, fontWeight: "bold" }}
+          >{t("rate")} {rate && rate > 0 ? `${rate}/10` : ""}</Text>
+          <Slider
+            value={rate ?? 0}
+            onValueChange={(val) => {
+              setRate(val);
+              setChecked(val > 0);
+              if (val === 0 && rateDate !== "") {
+                setRateDate("");
+              }
+              if (val > 0 && rateDate === "") {
+                const d = new Date()
+                rateDateChanged(`${d.getMonth() < 9 ? '0' : ''}${d.getMonth() + 1}/${d.getFullYear()}`)
+              }
+            }}
+            maximumValue={10}
+            minimumValue={0}
+            minimumTrackTintColor="#CC95B3"
+            step={1}
+            allowTouchTrack
+            trackStyle={{ height: 10 }}
+            thumbStyle={{ height: 30, width: 30, backgroundColor: "pink" }}
+            thumbProps={{
+              children: (
+                <Feather
+                  name="heart"
+                  size={30}
+                  color="#ee5997"
+                />),
+            }}
+            style={{ marginHorizontal: 10 }}
+          />
+          <Text style={{ marginHorizontal: 10, fontSize: 16, fontWeight: "bold" }}>{t("ratedDate")}</Text>
+          <Input placeholder={"mm/yyyy"}
+            placeholderTextColor={theme.colors?.mutedText} value={rateDate}
+            onChangeText={rateDateChanged} keyboardType="numeric"
+            disabled={rate === null || rate === 0}
+          />
+          {!rateDateValid && <Text style={{ color: theme.colors?.error, marginBottom: 15, marginLeft: 20 }}>{t("invalidDate")}</Text>}
+          <Button
+            title={itemId ? t("edit") : t("add")}
+            onPress={() => createItem()}
+            buttonStyle={{ marginHorizontal: 10, height: 40, borderRadius: 10 }}
+            disabled={btnDisabled}
+          />
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }

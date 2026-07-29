@@ -6,7 +6,6 @@ import { deleteListItem, updateListItem } from "../services/listItemsDbService.t
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useAppTheme } from "../context/ThemeContext.tsx";
-import { updateListCheck } from "../services/listsDbService.ts";
 
 interface RatableListProps {
   item: Item,
@@ -29,7 +28,7 @@ export default function RateableItem(props: RatableListProps) {
 
   function markChecked() {
     if (props.item.checked) {
-      updateListItem({ ...props.item, rate: 0, checked: false }).then(() => {
+      updateListItem({ ...props.item, rate: 0, checked: false, rateDate: null }).then(() => {
         props.updateList();
       });
       return;
@@ -39,7 +38,7 @@ export default function RateableItem(props: RatableListProps) {
   };
 
   function rateAndSave() {
-    updateListItem({ ...props.item, rate: rate, checked: true }).then(() => {
+    updateListItem({ ...props.item, rate: rate, checked: true, rateDate: new Date() }).then(() => {
       props.updateList();
       setRateVisible(false);
     });
@@ -107,6 +106,7 @@ export default function RateableItem(props: RatableListProps) {
             {props.item.genre?.name && `  -  ${props.item.genre.name}`}
             {year && `  -  ${year}`}
             {props.item.rate ? `  -  ${props.item.rate}/10` : ""}
+            {props.item.rateDate ? ` (${props.item.rateDate.getMonth() + 1}/${props.item.rateDate.getFullYear()})` : ""}
           </ListItem.Subtitle>
         </ListItem.Content>
       </ListItem.Swipeable>

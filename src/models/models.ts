@@ -6,7 +6,8 @@ interface ListItem {
   genre?: Genre,
   year: Date | null,
   checked: boolean,
-  rate: number | null
+  rate: number | null,
+  rateDate: Date | null,
 }
 
 interface Author {
@@ -37,6 +38,16 @@ enum CheckedEnum {
   Unseen,
 }
 
+enum OrderByEnum {
+  Id,
+  Name,
+  Author,
+  Genre,
+  Rate,
+  Year,
+  RateDate,
+}
+
 type RootStackParamList = {
   Home: undefined;
   AddList: { listId: number | null };
@@ -46,4 +57,4 @@ type RootStackParamList = {
 }
 
 export type { ListItem, List, Author, Genre, RootStackParamList, AppSettings }
-export { CheckedEnum }
+export { CheckedEnum, OrderByEnum }

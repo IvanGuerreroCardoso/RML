@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { CheckedEnum, ListItem as Item, RootStackParamList } from "../models/models"
+import { CheckedEnum, ListItem as Item, RootStackParamList, OrderByEnum } from "../models/models"
 import { getListItems } from "../services/listItemsDbService";
 import { FlatList, StyleSheet, View } from "react-native";
 import { Button, ButtonGroup, FAB, ListItem, Overlay, SearchBar, Text, Input, CheckBox } from "@rneui/themed";
@@ -41,6 +41,9 @@ export default function ListScreen({ route }: Props) {
   const [yearMax, setYearMax] = useState("3000");
   const [applyYearFilter, setApplyYearFilter] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [orderByOpen, setOrderByOpen] = useState(false);
+  const [orderByEnum, setOrderByEnum] = useState(OrderByEnum.Id);
+  const [orderByDesc, setOrderByDesc] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,7 +58,7 @@ export default function ListScreen({ route }: Props) {
 
   useEffect(() => {
     let checkStatus = checkedFilter === CheckedEnum.All ? null : checkedFilter === CheckedEnum.Seen ? true : false;
-    setShownList(listItems.filter(i => (!searchTxt ? true : (strContains(i.name, searchTxt) ||
+    sortAndSetList(listItems.filter(i => (!searchTxt ? true : (strContains(i.name, searchTxt) ||
       (i.genre?.name && strContains(i.genre.name, searchTxt)) ||
       (i.author?.name && strContains(i.author.name, searchTxt)))) &&
       (checkStatus === null ? true : i.checked === checkStatus) &&
@@ -65,6 +68,42 @@ export default function ListScreen({ route }: Props) {
       ))
     )
   }, [searchTxt, listItems, filtersOpen])
+
+  function sortAndSetList(list: Item[]) {
+    if (orderByOpen) return;
+
+    let sortedList: Item[];
+    switch (orderByEnum) {
+      case OrderByEnum.Id:
+        sortedList = list.sort((a, b) => { const res = a.itemId - b.itemId; return orderByDesc ? -res : res });
+        break;
+      case OrderByEnum.Author:
+        sortedList = list.sort((a, b) => { const res = (a.author?.name ?? "").localeCompare(b.author?.name ?? ""); return orderByDesc ? -res : res });
+        break;
+      case OrderByEnum.Genre:
+        sortedList = list.sort((a, b) => { const res = (a.genre?.name ?? "").localeCompare(b.genre?.name ?? ""); return orderByDesc ? -res : res });
+        break;
+      case OrderByEnum.Name:
+        sortedList = list.sort((a, b) => { const res = a.name.localeCompare(b.name); return orderByDesc ? -res : res });
+        break;
+      case OrderByEnum.Rate:
+        sortedList = list.sort((a, b) => { const res = (a.rate ?? 0) - (b.rate ?? 0); return orderByDesc ? -res : res });
+        break;
+      case OrderByEnum.Year:
+        sortedList = list.sort((a, b) => { const res = (a.year?.getTime() ?? 0) - (b.year?.getTime() ?? 0); return orderByDesc ? -res : res });
+        break
+      case OrderByEnum.RateDate:
+        sortedList = list.sort((a, b) => { const res = (a.rateDate?.getTime() ?? 0) - (b.rateDate?.getTime() ?? 0); return orderByDesc ? -res : res });
+        break;
+      default:
+        return;
+    }
+    setShownList(sortedList);
+  }
+
+  useEffect(() => {
+    sortAndSetList([...shownList]);
+  }, [orderByOpen])
 
   function strContains(str: string, substr: string) {
     if (!str)
@@ -119,6 +158,13 @@ export default function ListScreen({ route }: Props) {
           />
         </View>
         <Feather
+          name="shuffle"
+          size={35}
+          color={theme.colors?.primary}
+          style={{ margin: 10 }}
+          onPress={() => setOrderByOpen(true)}
+        />
+        <Feather
           name="filter"
           size={35}
           color={theme.colors?.primary}
@@ -171,8 +217,8 @@ export default function ListScreen({ route }: Props) {
         overlayStyle={{ borderWidth: 2, padding: 0, borderColor: theme.colors?.border, width: "80%", height: 300 }}
       >
         <View style={{ padding: 15, backgroundColor: theme.colors?.background, flex: 1 }}>
-          <Text>{t("editHelpTitle")}</Text>
-          <Text style={{ marginTop: 5, marginBottom: 15 }}>{t("editHelpText")}</Text>
+          <Text>{t("editOrRateHelpTitle")}</Text>
+          <Text style={{ marginTop: 5, marginBottom: 15 }}>{t("editOrRateHelpText")}</Text>
           <Text>{t("deleteHelpTitle")}</Text>
           <Text style={{ marginTop: 5, marginBottom: 15 }}>{t("deleteHelpText")}</Text>
           <Text>{t("rateHelpTitle")}</Text>
@@ -206,6 +252,45 @@ export default function ListScreen({ route }: Props) {
           </ListItem>
         </View>
       </Overlay >
+      <Overlay
+        isVisible={orderByOpen}
+        onBackdropPress={() => setOrderByOpen(false)}
+        overlayStyle={{ borderWidth: 2, margin: 0, padding: 0, borderColor: theme.colors?.border, width: "90%", height: "90%" }}
+      >
+        <View
+          style={{
+            flex: 1, margin: 0,
+            backgroundColor: theme.colors?.background,
+            padding: 10
+          }}
+        >
+          <Text>{t("orderBy")}</Text>
+          <ButtonGroup
+            buttons={[t("default"), t("name"), t("author"), t("genre"), t("rate"), t("year"), t("ratedDate")]}
+            selectedIndex={orderByEnum}
+            onPress={(val: number) => setOrderByEnum(val)}
+            containerStyle={{ backgroundColor: theme.colors?.background, marginHorizontal: 0 }}
+            textStyle={{ color: theme.colors?.text }}
+            vertical
+          />
+          <Text>{t("direction")}</Text>
+          <ButtonGroup
+            buttons={[t("ascending"), t("descending")]}
+            selectedIndex={orderByDesc ? 1 : 0}
+            onPress={(val: number) => setOrderByDesc(val === 1)}
+            containerStyle={{ backgroundColor: theme.colors?.background, marginHorizontal: 0 }}
+            textStyle={{ color: theme.colors?.text }}
+          />
+          <Button
+            onPress={() => { setOrderByDesc(false); setOrderByEnum(OrderByEnum.Id) }}
+            buttonStyle={{ width: "auto", height: 40, marginVertical: 30, borderRadius: 10 }}
+          >{t("reset")}</Button>
+          <Button
+            onPress={() => setOrderByOpen(false)}
+            buttonStyle={{ width: "auto", height: 40, borderRadius: 10 }}
+          >{t("apply")}</Button>
+        </View>
+      </Overlay>
       <Overlay
         isVisible={filtersOpen}
         overlayStyle={{ borderWidth: 2, margin: 0, padding: 0, borderColor: theme.colors?.border, width: "90%", height: "90%" }}
