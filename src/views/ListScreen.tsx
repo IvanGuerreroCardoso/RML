@@ -214,7 +214,7 @@ export default function ListScreen({ route }: Props) {
           />
         </>
       }
-      <Tutorial open={tutorialOpen} toggleOpen={() => setTutorialOpen(!tutorialOpen)} />
+      <Tutorial open={tutorialOpen} toggleOpen={() => setTutorialOpen(false)} />
       <Overlay
         isVisible={randElemPickOpen}
         onBackdropPress={() => setRandElemPickOpen(false)}
