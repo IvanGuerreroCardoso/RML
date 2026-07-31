@@ -41,6 +41,10 @@ export default function Tutorial(props: TutorialProps) {
   const { theme } = useAppTheme();
   const [section, setSection] = useState(1);
 
+  useEffect(() => {
+    if (props.open) setSection(1);
+  }, [props.open]);
+
   function close() {
     updateTutorial(1).then(() =>
       props.toggleOpen()
