@@ -4,6 +4,7 @@ import { AppSettings } from '../models/models';
 enablePromise(true);
 
 var db: SQLiteDatabase | null = null;
+let migratePromise: Promise<void> | null = null;
 
 async function getDatabase() {
   if (db != null) return db;
@@ -12,7 +13,7 @@ async function getDatabase() {
   return db;
 };
 
-const createSettingsTable = async () => {
+const createSettings = async () => {
   let db = await getDatabase();
 
   await db.executeSql(
@@ -33,10 +34,19 @@ const createSettingsTable = async () => {
   }
 };
 
+
+const createSettingsTable = async () => {
+  if (migratePromise) return migratePromise;
+
+  migratePromise = (async () => {
+    await createSettings();
+  })();
+
+  return migratePromise;
+};
+
 const getSettings = async (): Promise<AppSettings | null> => {
   let db = await getDatabase();
-
-  await createSettingsTable();
 
   let res = await db.executeSql("SELECT id, language, theme, tutorial FROM Settings WHERE id = 1");
 
