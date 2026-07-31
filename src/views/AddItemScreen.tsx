@@ -55,7 +55,8 @@ export default function AddItemScreen({ route }: Props) {
         setName(item.name);
         setChecked(item.checked);
         setRate(item.rate);
-        setRateDate(item.rateDate !== null ? `${item.rateDate.getMonth() < 9 ? '0' : ''}${item.rateDate.getMonth() + 1}/${item.rateDate.getFullYear()}` : "");
+        setRateDate(item.rateDate !== null ?
+          `${item.rateDate.getFullYear()}/${item.rateDate.getMonth() < 9 ? '0' : ''}${item.rateDate.getMonth() + 1}/${item.rateDate.getDate() < 10 ? "0" : ""}${item.rateDate.getDate()}` : "");
       })
     }
   }, [])
@@ -94,7 +95,7 @@ export default function AddItemScreen({ route }: Props) {
       author: authorIdToSave ? { id: authorIdToSave, name: author.trim() } : undefined,
       genre: genreIdToSave ? { id: genreIdToSave, name: genre.trim() } : undefined,
       listId,
-      year: year ? new Date(parseInt(year), 0, 1) : null, // parse to Date as 01/01/yy
+      year: year ? new Date(Number(year), 0, 1) : null, // parse to Date as 01/01/yy
       rate,
       rateDate: dateFromString(rateDate)
     }
@@ -120,7 +121,7 @@ export default function AddItemScreen({ route }: Props) {
 
     const splitStr = str.split('/');
 
-    return new Date(parseInt(splitStr[1]), parseInt(splitStr[0]) - 1, 1);
+    return new Date(Number(splitStr[0]), Number(splitStr[1]) - 1, Number(splitStr[2]));
   }
 
   useEffect(() => {
@@ -136,7 +137,8 @@ export default function AddItemScreen({ route }: Props) {
         year === (originalItem.year?.getFullYear().toString() ?? "") &&
         genre === originalItem.genre?.name &&
         rate === originalItem.rate &&
-        rateDate === (originalItem.rateDate !== null ? `${originalItem.rateDate.getMonth()}/${originalItem.rateDate.getFullYear()}` : ""))
+        rateDate === (originalItem.rateDate !== null ?
+          `${originalItem.rateDate.getFullYear()}/${originalItem.rateDate.getMonth() < 9 ? '0' : ''}${originalItem.rateDate.getMonth() + 1}/${originalItem.rateDate.getDate() < 10 ? "0" : ""}${originalItem.rateDate.getDate()}` : ""))
     );
   }, [name, author, authorMatches, genreMatches, year, genre, originalItem, rateDate])
 
@@ -174,16 +176,57 @@ export default function AddItemScreen({ route }: Props) {
     setGenreMatches([]);
   }
 
+  function formatToYyyyMmDd(input: string) {
+    const digits = input.replace(/\D/g, ""); // keep only 0-9
+    const y = digits.slice(0, 4);
+    const m = digits.slice(4, 6);
+    const d = digits.slice(6, 8);
+
+    let out = y;
+    if (m.length > 0) out += "/" + m;
+    if (d.length > 0) out += "/" + d;
+
+    return out;
+  }
+
   function rateDateChanged(rd: string) {
-    if (/^\d{0,2}\/?\d{0,4}$/gm.test(rd)) {
-      if (rd.length > 2 && !rd.includes('/') && rd.length > rateDate.length) {
-        rd = rd.substring(0, 2) + '/' + rd.substring(2);
-      }
-      setRateDate(rd);
-      if (rd.length > 2) {
-        setRateDateValid(/^\d{2}\/\d{4}$/gm.test(rd) && parseInt(rd.substring(0, 2)) <= 12);
-      }
+    // quick sanity: only allow digits and optional slashes/spaces
+    if (!/^[\d/]*$/.test(rd)) return;
+
+    const formatted = formatToYyyyMmDd(rd);
+    setRateDate(formatted);
+
+    // Only validate when it’s "complete" in length for strict yyyy/mm/dd
+    // (or use your own condition)
+    const isComplete = /^\d{4}\/\d{2}\/\d{2}$/.test(formatted);
+    if (isComplete) {
+      setRateDateValid(isValidYyyyMmDd(formatted)); // strict validator
+    } else {
+      setRateDateValid(false); // or true if you consider partial input "valid"
     }
+  }
+
+  function isValidYyyyMmDd(s: string) {
+    if (s === "") return true;
+    // 1) Strict format: yyyy/mm/dd with zero-padded month/day
+    const m = /^(\d{4})\/(\d{2})\/(\d{2})$/.exec(s);
+    if (!m) return false;
+
+    const year = Number(m[1]);
+    const month = Number(m[2]); // 1-12
+    const day = Number(m[3]);   // 1-31
+
+    // 2) Basic range checks
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 31) return false;
+
+    // 3) Validate actual calendar date (handles leap years, month lengths)
+    const dt = new Date(Date.UTC(year, month - 1, day));
+    return (
+      dt.getUTCFullYear() === year &&
+      dt.getUTCMonth() === (month - 1) &&
+      dt.getUTCDate() === day
+    );
   }
 
   const yearChanged = (yr: string) => {
@@ -242,7 +285,7 @@ export default function AddItemScreen({ route }: Props) {
           {!yearValid && <Text style={{ color: theme.colors?.error, marginBottom: 15, marginLeft: 20 }}>{t("invalidDate")}</Text>}
           <Text
             style={{ marginHorizontal: 10, fontSize: 15, fontWeight: "bold" }}
-          >{t("rate")} {rate && rate > 0 ? `${rate}/10` : ""}</Text>
+          >{t("rate")} {rate && rate > 0 ? `${rate} / 10` : ""}</Text>
           <Slider
             value={rate ?? 0}
             onValueChange={(val) => {
@@ -252,8 +295,8 @@ export default function AddItemScreen({ route }: Props) {
                 setRateDate("");
               }
               if (val > 0 && rateDate === "") {
-                const d = new Date()
-                rateDateChanged(`${d.getMonth() < 9 ? '0' : ''}${d.getMonth() + 1}/${d.getFullYear()}`)
+                const d = new Date();
+                rateDateChanged(`${d.getFullYear()}/${d.getMonth() < 9 ? '0' : ''}${d.getMonth() + 1}/${d.getDate() < 10 ? "0" : ""}${d.getDate()}`)
               }
             }}
             maximumValue={10}
@@ -274,7 +317,7 @@ export default function AddItemScreen({ route }: Props) {
             style={{ marginHorizontal: 10 }}
           />
           <Text style={{ marginHorizontal: 10, fontSize: 16, fontWeight: "bold" }}>{t("ratedDate")}</Text>
-          <Input placeholder={"mm/yyyy"}
+          <Input placeholder={t("y/m/d")}
             placeholderTextColor={theme.colors?.mutedText} value={rateDate}
             onChangeText={rateDateChanged} keyboardType="numeric"
             disabled={rate === null || rate === 0}

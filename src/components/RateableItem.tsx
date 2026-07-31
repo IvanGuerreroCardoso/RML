@@ -106,7 +106,7 @@ export default function RateableItem(props: RatableListProps) {
             {props.item.genre?.name && `  -  ${props.item.genre.name}`}
             {year && `  -  ${year}`}
             {props.item.rate ? `  -  ${props.item.rate}/10` : ""}
-            {props.item.rateDate ? ` (${props.item.rateDate.getMonth() + 1}/${props.item.rateDate.getFullYear()})` : ""}
+            {props.item.rateDate ? ` (${props.item.rateDate.getFullYear()}/${props.item.rateDate.getMonth() + 1}/${props.item.rateDate.getDate()})` : ""}
           </ListItem.Subtitle>
         </ListItem.Content>
       </ListItem.Swipeable>
