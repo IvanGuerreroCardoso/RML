@@ -16,26 +16,38 @@ const createSettingsTable = async () => {
   let db = await getDatabase();
 
   await db.executeSql(
-    "CREATE TABLE IF NOT EXISTS Settings (id INTEGER PRIMARY KEY NOT NULL, theme TEXT, language TEXT);"
+    "CREATE TABLE IF NOT EXISTS Settings (id INTEGER PRIMARY KEY NOT NULL, theme TEXT, language TEXT, tutorial NUMBER);"
   );
+
+  const result = await db.executeSql(
+    `
+       SELECT 1
+       FROM pragma_table_info('Settings')
+       WHERE name = 'tutorial'
+       LIMIT 1;
+       `
+  );
+
+  if (result[0].rows.length === 0) {
+    await db.executeSql(`ALTER TABLE Settings ADD COLUMN tutorial NUMBER;`);
+  }
 };
 
 const getSettings = async (): Promise<AppSettings | null> => {
   let db = await getDatabase();
 
-  await db.executeSql(
-    "CREATE TABLE IF NOT EXISTS Settings (id INTEGER PRIMARY KEY NOT NULL, theme TEXT, language TEXT);"
-  );
-  let res = await db.executeSql("SELECT id, theme, language FROM Settings WHERE id = 1");
+  await createSettingsTable();
+
+  let res = await db.executeSql("SELECT id, language, theme, tutorial FROM Settings WHERE id = 1");
 
   if (res[0].rows.length > 0) {
     const item = res[0].rows.item(0);
-    return { id: item.id, language: item.language, theme: item.theme };
+    return { id: item.id, language: item.language, theme: item.theme, tutorial: item.tutorial };
   }
 
-  await db.executeSql("INSERT INTO Settings (id, theme, language) VALUES (1, NULL, NULL)");
+  await db.executeSql("INSERT INTO Settings (id, theme, language, tutorial) VALUES (1, NULL, NULL, NULL)");
 
-  return { id: 1, theme: null, language: null };
+  return { id: 1, theme: null, language: null, tutorial: null };
 }
 
 const updateLanguage = async (lang: string) => {
@@ -59,4 +71,13 @@ const updateTheme = async (theme: string) => {
   return res[0].rowsAffected;
 }
 
-export { createSettingsTable, getSettings, updateLanguage, updateTheme }
+const updateTutorial = async (tutorialNum: number) => {
+  let db = await getDatabase();
+  let res = await db.executeSql(
+    "UPDATE Settings SET tutorial = ? WHERE id = 1",
+    [tutorialNum]
+  );
+  return res[0].rowsAffected;
+}
+
+export { createSettingsTable, getSettings, updateLanguage, updateTheme, updateTutorial }

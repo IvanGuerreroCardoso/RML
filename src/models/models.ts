@@ -29,7 +29,8 @@ interface List {
 interface AppSettings {
   id: number,
   theme: "light" | "dark" | null,
-  language: string | null
+  language: string | null,
+  tutorial: number | null
 }
 
 enum CheckedEnum {

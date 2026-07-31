@@ -10,6 +10,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useAppTheme } from "../context/ThemeContext";
 import Feather from "@react-native-vector-icons/feather";
 import { updateListCheck } from "../services/listsDbService";
+import { getSettings } from "../services/settingsDbService";
+import Tutorial from "../components/Tutorial";
 
 const styles = StyleSheet.create({
   container: {
@@ -40,7 +42,7 @@ export default function ListScreen({ route }: Props) {
   const [yearMin, setYearMin] = useState("0");
   const [yearMax, setYearMax] = useState("3000");
   const [applyYearFilter, setApplyYearFilter] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [orderByOpen, setOrderByOpen] = useState(false);
   const [orderByEnum, setOrderByEnum] = useState(OrderByEnum.Id);
   const [orderByDesc, setOrderByDesc] = useState(false);
@@ -48,6 +50,7 @@ export default function ListScreen({ route }: Props) {
   useFocusEffect(
     useCallback(() => {
       updateList();
+      getSettings().then(res => { if (!res?.tutorial) setTutorialOpen(true); })
     }, [])
   );
 
@@ -158,7 +161,7 @@ export default function ListScreen({ route }: Props) {
           />
         </View>
         <Feather
-          name="shuffle"
+          name="align-center"
           size={35}
           color={theme.colors?.primary}
           style={{ margin: 10 }}
@@ -205,26 +208,13 @@ export default function ListScreen({ route }: Props) {
             placement="left"
             size="small"
             icon={<Feather name="help-circle" color={theme.colors?.white} size={20} />}
-            onPress={() => setHelpOpen(true)}
+            onPress={() => setTutorialOpen(true)}
             titleStyle={{ color: theme.colors?.white }}
             containerStyle={{ marginBottom: 5 }}
           />
         </>
       }
-      <Overlay
-        isVisible={helpOpen}
-        onBackdropPress={() => setHelpOpen(false)}
-        overlayStyle={{ borderWidth: 2, padding: 0, borderColor: theme.colors?.border, width: "80%", height: 300 }}
-      >
-        <View style={{ padding: 15, backgroundColor: theme.colors?.background, flex: 1 }}>
-          <Text>{t("editOrRateHelpTitle")}</Text>
-          <Text style={{ marginTop: 5, marginBottom: 15 }}>{t("editOrRateHelpText")}</Text>
-          <Text>{t("deleteHelpTitle")}</Text>
-          <Text style={{ marginTop: 5, marginBottom: 15 }}>{t("deleteHelpText")}</Text>
-          <Text>{t("rateHelpTitle")}</Text>
-          <Text style={{ marginTop: 5, marginBottom: 15 }}>{t("rateHelpText")}</Text>
-        </View>
-      </Overlay>
+      <Tutorial open={tutorialOpen} toggleOpen={() => setTutorialOpen(!tutorialOpen)} />
       <Overlay
         isVisible={randElemPickOpen}
         onBackdropPress={() => setRandElemPickOpen(false)}
