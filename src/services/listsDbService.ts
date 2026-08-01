@@ -12,14 +12,6 @@ async function getDatabase() {
   return db;
 };
 
-const createListTable = async () => {
-  let db = await getDatabase();
-
-  return await db.executeSql(
-    'CREATE TABLE IF NOT EXISTS Lists (listId INTEGER PRIMARY KEY NOT NULL, name TEXT, checked BOOLEAN);'
-  );
-};
-
 const insertList = async (name: string): Promise<number> => {
   let db = await getDatabase();
 
@@ -85,4 +77,4 @@ const deleteList = async (id: number): Promise<number> => {
   return affectedRows;
 };
 
-export { insertList, getLists, updateList, deleteList, createListTable, getListById, updateListCheck };
+export { insertList, getLists, updateList, deleteList, getListById, updateListCheck };

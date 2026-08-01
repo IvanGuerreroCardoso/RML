@@ -4,16 +4,14 @@ import ListScreen from './src/views/ListScreen';
 import SettingsScreen from "./src/views/SettingsScreen"
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createListTable } from './src/services/listsDbService';
 import AddItemScreen from './src/views/AddItemScreen';
-import { createItemsTable } from './src/services/listItemsDbService';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import { Feather } from "@react-native-vector-icons/feather";
 import { ThemeProvider as RNEThemeProvider, useTheme } from '@rneui/themed';
 import { RootStackParamList } from './src/models/models';
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
-import { createSettingsTable } from './src/services/settingsDbService';
+import { initDb } from './src/services/settingsDbService';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -67,20 +65,18 @@ function RootStack() {
   )
 }
 
-createSettingsTable();
-createListTable();
-createItemsTable();
+initDb();
 
 const Navigation = () => {
   const { theme } = useAppTheme();
 
   return (
     <SafeAreaProvider>
-    <NavigationContainer theme={theme as any}>
-      <RNEThemeProvider theme={theme}>
-        <RootStack />
-      </RNEThemeProvider>
-    </NavigationContainer>
+      <NavigationContainer theme={theme as any}>
+        <RNEThemeProvider theme={theme}>
+          <RootStack />
+        </RNEThemeProvider>
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 };

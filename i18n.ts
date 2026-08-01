@@ -3,7 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import es from './locales/es.json';
 import { NativeModules } from "react-native";
-import { getSettings, updateLanguage, createSettingsTable } from './src/services/settingsDbService';
+import { getSettings, updateLanguage, initDb } from './src/services/settingsDbService';
 const { LocaleModule } = NativeModules;
 
 const resources = {
@@ -27,7 +27,7 @@ const languageDetector: DetectorModule = {
   type: 'languageDetector',
   async: true, // flags below detection to be async
   detect: async (callback: (lng: string) => void) => {
-    await createSettingsTable();
+    await initDb();
     let appSettings = await getSettings();
 
     if (appSettings?.language) {

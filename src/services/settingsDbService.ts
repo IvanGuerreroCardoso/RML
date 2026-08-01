@@ -13,7 +13,7 @@ async function getDatabase() {
   return db;
 };
 
-const createSettings = async () => {
+const createSettingsTable = async () => {
   let db = await getDatabase();
 
   await db.executeSql(
@@ -34,12 +34,50 @@ const createSettings = async () => {
   }
 };
 
+const createItemsTable = async () => {
+  let db = await getDatabase();
 
-const createSettingsTable = async () => {
+  await db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Authors USING fts4(name TEXT)");
+  await db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Genres USING fts4(name TEXT)");
+  await db.executeSql(`
+CREATE TABLE IF NOT EXISTS Items 
+(itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year TEXT, checked BOOLEAN, rate INTEGER,
+authorId INTEGER, genreId INTEGER, rateDate TEXT, createdAt TEXT)`
+  );
+
+  const result = await db.executeSql(
+    `
+       SELECT 1
+       FROM pragma_table_info('Items')
+       WHERE name = 'rateDate'
+       LIMIT 1;
+       `
+  );
+
+  if (result[0].rows.length === 0) {
+    await db.executeSql(`ALTER TABLE Items ADD COLUMN rateDate TEXT;`);
+    await db.executeSql(`ALTER TABLE Items ADD COLUMN createdAt TEXT;`);
+  }
+};
+
+
+const createListTable = async () => {
+  let db = await getDatabase();
+
+  await db.executeSql(
+    'CREATE TABLE IF NOT EXISTS Lists (listId INTEGER PRIMARY KEY NOT NULL, name TEXT, checked BOOLEAN);'
+  );
+
+  return;
+};
+
+const initDb = async () => {
   if (migratePromise) return migratePromise;
 
   migratePromise = (async () => {
-    await createSettings();
+    await createSettingsTable();
+    await createItemsTable();
+    await createListTable();
   })();
 
   return migratePromise;
@@ -90,4 +128,4 @@ const updateTutorial = async (tutorialNum: number) => {
   return res[0].rowsAffected;
 }
 
-export { createSettingsTable, getSettings, updateLanguage, updateTheme, updateTutorial }
+export { initDb, getSettings, updateLanguage, updateTheme, updateTutorial }

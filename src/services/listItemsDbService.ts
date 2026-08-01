@@ -12,38 +12,6 @@ async function getDatabase() {
   return db;
 };
 
-const createItemsTable = async () => {
-  let db = await getDatabase();
-
-  let authTableTask = db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Authors USING fts4(name TEXT)");
-  let genreTableTask = db.executeSql("CREATE VIRTUAL TABLE IF NOT EXISTS Genres USING fts4(name TEXT)");
-  let enableForeignKeysTask = db.executeSql("PRAGMA foreign_keys = ON;");
-  let itemsTableTask = db.executeSql(`
-CREATE TABLE IF NOT EXISTS Items 
-(itemId INTEGER PRIMARY KEY NOT NULL, name TEXT, listId INT NOT NULL, year TEXT, checked BOOLEAN, rate INTEGER,
-authorId INTEGER, genreId INTEGER, rateDate TEXT, createdAt TEXT)`
-  );
-
-  await genreTableTask;
-  await authTableTask;
-  await enableForeignKeysTask;
-  await itemsTableTask;
-
-  const result = await db.executeSql(
-    `
-       SELECT 1
-       FROM pragma_table_info('Items')
-       WHERE name = 'rateDate'
-       LIMIT 1;
-       `
-  );
-
-  if (result[0].rows.length === 0) {
-    await db.executeSql(`ALTER TABLE Items ADD COLUMN rateDate TEXT;`);
-    await db.executeSql(`ALTER TABLE Items ADD COLUMN createdAt TEXT;`);
-  }
-};
-
 const insertListItem = async (item: ListItem): Promise<number> => {
   let db = await getDatabase();
 
@@ -190,6 +158,5 @@ async function getItemsCount() {
 }
 
 export {
-  insertListItem, getListItems, updateListItem, deleteListItem, getItemById,
-  createItemsTable, insertAuthor, insertGenre, matchAuthor, matchGenre, getItemsCount
+  insertListItem, getListItems, updateListItem, deleteListItem, getItemById, insertAuthor, insertGenre, matchAuthor, matchGenre, getItemsCount
 };
