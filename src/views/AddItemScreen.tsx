@@ -9,6 +9,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { updateListCheck } from "../services/listsDbService";
 import { useAppTheme } from "../context/ThemeContext";
 import Feather from "@react-native-vector-icons/feather";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const styles = StyleSheet.create({
   flatList: {
@@ -22,6 +23,7 @@ const styles = StyleSheet.create({
 type Props = NativeStackScreenProps<RootStackParamList, "AddItem">;
 
 export default function AddItemScreen({ route }: Props) {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { listId, itemId } = route.params;
   const { theme } = useAppTheme();
@@ -258,7 +260,8 @@ export default function AddItemScreen({ route }: Props) {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "position"}
+      behavior="padding"
+      keyboardVerticalOffset={insets.top}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
