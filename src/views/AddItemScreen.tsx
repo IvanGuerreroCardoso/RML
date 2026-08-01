@@ -142,7 +142,7 @@ export default function AddItemScreen({ route }: Props) {
         rateDate === (originalItem.rateDate !== null ?
           `${originalItem.rateDate.getFullYear()}/${originalItem.rateDate.getMonth() < 9 ? '0' : ''}${originalItem.rateDate.getMonth() + 1}/${originalItem.rateDate.getDate() < 10 ? "0" : ""}${originalItem.rateDate.getDate()}` : ""))
     );
-  }, [name, author, authorMatches, genreMatches, year, genre, originalItem, rateDate])
+  }, [name, author, year, genre, originalItem, rateDate, rate])
 
   function authorChanged(txt: string) {
     setAuthor(txt);
