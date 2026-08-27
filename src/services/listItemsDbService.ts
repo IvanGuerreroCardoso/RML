@@ -101,7 +101,7 @@ const deleteListItem = async (id: number, authorId: number | null, genreId: numb
   if (genreId) {
     genreCleanupTask = db.executeSql(`DELETE FROM Genres WHERE rowid = ? AND rowid NOT IN(
       SELECT i.genreId FROM Items i WHERE i.genreId = ?
-    )`, [genreId, authorId]);
+    )`, [genreId, genreId]);
   }
 
   authorCleanupTask && await authorCleanupTask;
