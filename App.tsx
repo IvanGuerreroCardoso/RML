@@ -14,6 +14,7 @@ import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 import { initDb } from './src/services/settingsDbService';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Pressable } from 'react-native';
+import { useEffect, useState } from 'react';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -76,8 +77,6 @@ function RootStack() {
   )
 }
 
-initDb();
-
 const Navigation = () => {
   const { theme } = useAppTheme();
 
@@ -93,6 +92,14 @@ const Navigation = () => {
 };
 
 export default function App() {
+  const [databaseReady, setDatabaseReady] = useState(false);
+
+  useEffect(() => {
+    initDb().then(() => setDatabaseReady(true));
+  }, []);
+
+  if (!databaseReady) return null;
+
   return (
     <ThemeProvider>
       <I18nextProvider i18n={i18n}>
