@@ -2,6 +2,14 @@
 
 Rated Media Lists is a local-first mobile app for creating lists of media and rating the items in them. It is built with React Native and stores data on the device with SQLite. There is no backend account or server connection required.
 
+## Download
+
+The Android app is available on Google Play:
+
+[Download Rated Media Lists for Android](https://play.google.com/store/apps/details?id=com.ratedmedialists&pcampaignid=web_share)
+
+An iOS version has not been published yet.
+
 ## Features
 
 - Create, edit, browse, and delete lists.
