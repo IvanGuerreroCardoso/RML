@@ -74,8 +74,17 @@ const deleteList = async (id: number): Promise<number> => {
     "DELETE FROM Lists WHERE listId = ?",
     [id]
   );
+  const deletedUnusedAuthors = await db.executeSql(
+    "DELETE FROM Authors WHERE rowid NOT IN (SELECT authorId FROM Items WHERE authorId IS NOT NULL)"
+  );
+  const deletedUnusedGenres = await db.executeSql(
+    "DELETE FROM Genres WHERE rowid NOT IN (SELECT genreId FROM Items WHERE genreId IS NOT NULL)"
+  );
 
-  return deletedItems[0].rowsAffected + deletedList[0].rowsAffected;
+  return deletedItems[0].rowsAffected
+    + deletedList[0].rowsAffected
+    + deletedUnusedAuthors[0].rowsAffected
+    + deletedUnusedGenres[0].rowsAffected;
 };
 
 export { insertList, getLists, updateList, deleteList, getListById, updateListCheck };
