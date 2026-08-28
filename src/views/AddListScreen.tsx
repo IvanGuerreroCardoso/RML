@@ -21,7 +21,6 @@ export default function AddListScreen({ route }: Props) {
   const { theme } = useAppTheme();
   const navigation = useNavigation();
   const [name, setName] = useState<string>("");
-  const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
   const [listToEdit, setListToEdit] = useState<List | null>(null);
 
   useEffect(() => {
