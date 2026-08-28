@@ -65,16 +65,17 @@ const updateListCheck = async (listId: number, checked: boolean) => {
 
 const deleteList = async (id: number): Promise<number> => {
   let db = await getDatabase();
-  let affectedRows = 0;
 
-  await db.transaction(async (txn) => {
-    let deletedItemsTask = txn.executeSql("DELETE FROM Items WHERE listId = ? ", [id]);
-    let deletedListTask = txn.executeSql("DELETE FROM Lists WHERE listId = ?", [id]);
+  const deletedItems = await db.executeSql(
+    "DELETE FROM Items WHERE listId = ?",
+    [id]
+  );
+  const deletedList = await db.executeSql(
+    "DELETE FROM Lists WHERE listId = ?",
+    [id]
+  );
 
-    affectedRows += ((await deletedItemsTask)[1].rowsAffected + (await deletedListTask)[1].rowsAffected);
-  })
-
-  return affectedRows;
+  return deletedItems[0].rowsAffected + deletedList[0].rowsAffected;
 };
 
 export { insertList, getLists, updateList, deleteList, getListById, updateListCheck };
