@@ -45,7 +45,7 @@ export default function ListScreen({ route }: Props) {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [orderByOpen, setOrderByOpen] = useState(false);
   const [orderByEnum, setOrderByEnum] = useState(OrderByEnum.Id);
-  const [orderByDesc, setOrderByDesc] = useState(false);
+  const [orderByDesc, setOrderByDesc] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -272,7 +272,7 @@ export default function ListScreen({ route }: Props) {
             textStyle={{ color: theme.colors?.text }}
           />
           <Button
-            onPress={() => { setOrderByDesc(false); setOrderByEnum(OrderByEnum.Id) }}
+            onPress={() => { setOrderByDesc(true); setOrderByEnum(OrderByEnum.Id) }}
             buttonStyle={{ width: "auto", height: 40, marginVertical: 30, borderRadius: 10 }}
           >{t("reset")}</Button>
           <Button
