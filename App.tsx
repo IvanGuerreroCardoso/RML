@@ -13,6 +13,7 @@ import { RootStackParamList } from './src/models/models';
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 import { initDb } from './src/services/settingsDbService';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Pressable } from 'react-native';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -29,7 +30,17 @@ function RootStack() {
         options={{
           title: t("yourLists"),
           headerRight: () => {
-            return <Feather onPress={() => nav.navigate("Settings")} name="settings" size={20} color={theme.colors.primary} />
+            return (
+              <Pressable
+                accessibilityLabel={t("settings")}
+                accessibilityRole="button"
+                hitSlop={12}
+                onPress={() => nav.navigate("Settings")}
+                style={{ padding: 8 }}
+              >
+                <Feather name="settings" size={20} color={theme.colors.primary} />
+              </Pressable>
+            )
           }
         }}
       />
