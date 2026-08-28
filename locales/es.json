@@ -52,5 +52,11 @@
   "prev": "Anterior",
   "next": "Siguiente",
   "close": "Cerrar",
-  "example": "Ejemplo"
+  "example": "Ejemplo",
+  "exportBackup": "Exportar copia de seguridad",
+  "importBackup": "Importar copia de seguridad",
+  "backupSaved": "Copia de seguridad guardada en",
+  "backupImported": "Elementos importados",
+  "backupSkipped": "Filas omitidas",
+  "backupError": "Error de copia de seguridad"
 }

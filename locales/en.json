@@ -52,5 +52,11 @@
   "prev": "Previous",
   "next": "Next",
   "close": "Close",
-  "example": "Example"
+  "example": "Example",
+  "exportBackup": "Export backup",
+  "importBackup": "Import backup",
+  "backupSaved": "Backup saved to",
+  "backupImported": "Items imported",
+  "backupSkipped": "Rows skipped",
+  "backupError": "Backup error"
 }
